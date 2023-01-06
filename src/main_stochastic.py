@@ -36,6 +36,7 @@ for s in range(scenarios):
         uuid = data.columns[0].split('_')[0]
         dfb[s][uuid] = data
         dfb[s][uuid].rename(columns = {uuid+'_T_blg_set':'T_blg_set', uuid+'_E_elec':'E_blg'}, inplace = True)
+        dfb[s][uuid]['E_blg'] = dfb[s][uuid]['E_blg']/1000  # converting from W to kW
         bi += 2
 
     p_elec[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[3])
