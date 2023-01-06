@@ -328,7 +328,7 @@ for sa_setup in sa_setups:
             #  Optimization
             print('Problem constructed!')
             start_time = time.time()
-            status = my_lp_problem.solve(pulp.COIN_CMD(msg=1))
+            status = my_lp_problem.solve(pulp.GUROBI(mip=False,msg=1))
             end_time = time.time() - start_time
             print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
             print(pulp.LpStatus[status])
