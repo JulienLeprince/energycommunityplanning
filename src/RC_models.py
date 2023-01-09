@@ -32,17 +32,16 @@ def RCmodel(lp_problem: pulp.LpProblem,
     var = variance_parameters_identification(model_name, b)
 
     for t in range(H):
+        lp_problem += T_blg[b][t + 1] == Ti[t + 1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
 
         # Sensor
         if 'Ts' in model_name:
             lp_problem += Ts[t+1] - Ts[t] == (Ti[t] - Ts[t])* 1/(df_RC.loc[b, 'Ris']*df_RC.loc[b, 'Cs']) #+ gauss(0, var['Ts'])
-            lp_problem += T_blg[b][t+1] == Ts[t+1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
             lp_problem += Qis[t] == (Ts[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Ris'] * df_RC.loc[b, 'Ci'])
             if t == 0:
                 lp_problem += Ts[t] == df_RC.loc[b, 'Ts0']
         else:
             lp_problem += Qis[t] == 0
-            lp_problem += T_blg[b][t + 1] == Ti[t + 1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
 
         # Medium
         if 'Tm' in model_name:
