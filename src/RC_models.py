@@ -3,7 +3,8 @@ import pandas as pd
 from random import gauss
 import math
 
-path_RCmodels = r'C:/energycommunityplanning/data/in/'
+# path_RCmodels = r'C:/energycommunityplanning/data/in/'
+path_RCmodels = '../data/in/'
 file = 'all_greybox_fits.csv'
 df_RC = pd.read_csv(path_RCmodels+file, index_col='uuid')
 
@@ -14,7 +15,7 @@ def RCmodel(lp_problem: pulp.LpProblem,
             T_blg: pulp.LpVariable.dicts,
             Q_sp: pulp.LpVariable.dicts,
             H: int,
-            b: (str, int),
+            b,
             s: int = 0):
 
     Ti = pulp.LpVariable.dicts('var_Ti_blg'+str(b)+str(s), range(H + 1), cat='Continuous')

@@ -4,10 +4,15 @@ import numpy as np
 import time
 
 # Path definition
-path_in = r'C:/energycommunityplanning/data/in/'
-path_out = r'C:/energycommunityplanning/data/out/'
-path_src = r'C:/energycommunityplanning/src/'
-version = 'test'
+# path_in = r'C:/energycommunityplanning/data/in/'
+# path_out = r'C:/energycommunityplanning/data/out/'
+# path_src = r'C:/energycommunityplanning/src/'
+path_in = '../data/in/'
+path_out = '../data/out/'
+path_src = ''
+version = 'allbuildings_stochastic'
+
+
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
@@ -20,7 +25,7 @@ probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenarios = probabilities.shape[0]
 
 # TODO - Reducing size of problem here to 1 (deterministic)
-scenarios = 1
+# scenarios = 1
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -48,12 +53,14 @@ buildings = list(dfb[s].keys())
 
 
 # TODO -Reducing size of problem here
-buildings = buildings[0:5]
+# buildings = buildings[0:5]
 
 # Loading parameters
-exec(open(path_src+'parameters.py').read())
+# exec(open(path_src+'parameters.py').read())
+from parameters import *
 # Loading RC models
-exec(open(path_src+'RC_models.py').read())
+# exec(open(path_src+'RC_models.py').read())
+from RC_models import *
 
 
 # Calculating heat pump COP
@@ -150,12 +157,13 @@ for s in range(scenarios):
     # Building block
     for b in buildings:
         # Building system
-        my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
+        my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
+        # my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
 
         for t in range(H):
             # my_lp_problem += T_blg[s][b][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary
-            my_lp_problem += T_blg[s][b][t + 1] >= dfb[s][b]['T_blg_set'].iloc[
-                t + 1] - T_blg_buffer  # heating boundary
+            my_lp_problem += T_blg[s][b][t] >= dfb[s][b]['T_blg_set'].iloc[
+                t] - T_blg_buffer  # heating boundary
             # Battery
             my_lp_problem += E_blg_bat[s][b][t + 1] == E_blg_bat[s][b][t] * decay_blg_bat \
                              + E_blg_bat_ch[s][b][t] * eff_blg_bat_ch \
@@ -302,13 +310,13 @@ for s1 in range(scenarios):
                 my_lp_problem += C_blg_hp[s1][b] == C_blg_hp[s2][b]
 
 # Objective function
-my_lp_problem += pulp.lpSum(probabilities[s]*O_tot[s] for s in range(scenarios))
+my_lp_problem += pulp.lpSum(probabilities.iloc[s]*O_tot[s] for s in range(scenarios))
 
 ########################################################################################################################
 #  Optimization
 print('Problem constructed!')
 start_time = time.time()
-status = my_lp_problem.solve(pulp.GUROBI(mip=False,msg=1))
+status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",1)]))
 end_time = time.time() - start_time
 print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
 print(pulp.LpStatus[status])

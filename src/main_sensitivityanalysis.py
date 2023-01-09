@@ -4,10 +4,13 @@ import numpy as np
 import time
 
 # Path definition
-path_in = r'C:/energycommunityplanning/data/in/'
-path_out = r'C:/energycommunityplanning/data/out/'
-path_src = r'C:/energycommunityplanning/src/'
-version = 'test'
+# path_in = r'C:/energycommunityplanning/data/in/'
+# path_out = r'C:/energycommunityplanning/data/out/'
+# path_src = r'C:/energycommunityplanning/src/'
+path_in = '../data/in/'
+path_out = '../data/out/'
+path_src = ''
+version = 'allbuildings_stochastic'
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
@@ -18,11 +21,12 @@ df_RC = df_RC[df_RC['nCPBES'] < 0.003]
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenario_nb = probabilities.shape[0]
+scenarios = 1  # the problem is deterministic
 
 # Reading input data
 dfw, dfb = dict(), dict()
 p_elec, p_gas = dict(), dict()
-for s in range(scenarios):
+for s in range(scenario_nb):
     dfw[s] = pd.read_csv(path_in+'scenario_'+ str(s) +'.csv', usecols=[1,2])
     dfw[s].rename(columns = {'Ta':'T_a', 'Ps':'Q_sol'}, inplace = True)
 
@@ -42,17 +46,19 @@ for s in range(scenarios):
     p_gas[s] = p_gas[s]['gas_price [EUR/kWh]']
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
+# buildings = buildings[0:5]
 
 # Loading parameters
-exec(open(path_src+'parameters.py').read())
+# exec(open(path_src+'parameters.py').read())
+from parameters import *
 # Loading RC models
-exec(open(path_src+'RC_models.py').read())
+# exec(open(path_src+'RC_models.py').read())
+from RC_models import *
 # exec(open(path+'parameters.py').read())
 
 
 # Sensitivity analysis setups
 sa_setups = ['userbehavior', 'climate', 'economic']
-scenarios = 1  # the problem is deterministic
 SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
 s_occ_and_climate = 6
 s_occ_and_eco = 6
@@ -171,11 +177,11 @@ for sa_setup in sa_setups:
                 # Building block
                 for b in buildings:
                     # Building system
-                    my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s], Q_sp[s], H, b, s)
+                    my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s], Q_sp[s], H, b, s)
 
                     for t in range(H):
                         #my_lp_problem += T_blg[s][b][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary
-                        my_lp_problem += T_blg[s][b][t+1] >= dfb[s_occ][b]['T_blg_set'].iloc[t+1] - T_blg_buffer  # heating boundary
+                        my_lp_problem += T_blg[s][b][t] >= dfb[s_occ][b]['T_blg_set'].iloc[t] - T_blg_buffer  # heating boundary
                         # Battery
                         my_lp_problem += E_blg_bat[s][b][t+1] == E_blg_bat[s][b][t]*decay_blg_bat \
                                                                 + E_blg_bat_ch[s][b][t]*eff_blg_bat_ch \
@@ -322,13 +328,13 @@ for sa_setup in sa_setups:
                             my_lp_problem += C_blg_hp[s1][b] == C_blg_hp[s2][b]
 
             # Objective function
-            my_lp_problem += pulp.lpSum(probabilities[s]*O_tot[s] for s in range(scenarios))
+            my_lp_problem += pulp.lpSum(probabilities.iloc[s]*O_tot[s] for s in range(scenarios))
 
             ########################################################################################################################
             #  Optimization
             print('Problem constructed!')
             start_time = time.time()
-            status = my_lp_problem.solve(pulp.GUROBI(mip=False,msg=1))
+            status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",1)]))
             end_time = time.time() - start_time
             print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
             print(pulp.LpStatus[status])
