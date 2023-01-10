@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import time
 from multiprocessing import Pool, cpu_count, Process
-from CaseSpecific.EnergyCommunity import RCmodels as rc
 
 # Path
 path_in = '../data/in/'
@@ -175,8 +174,7 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
         # Building block
         for b in buildings:
             # Building system
-            my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s], Q_sp[s], H, b,
-                                       s)
+            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s], Q_sp[s], H, b, s)
 
             for t in range(H):
                 # my_lp_problem += T_blg[s][b][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary
