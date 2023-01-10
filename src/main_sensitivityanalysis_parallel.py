@@ -337,7 +337,7 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
     #  Optimization
     print('Problem constructed!')
     start_time = time.time()
-    status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",1)]))
+    status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",1), ("NodefileStart", 20)]))
     end_time = time.time() - start_time
     print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
     print(pulp.LpStatus[status])
