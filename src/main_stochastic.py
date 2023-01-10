@@ -10,8 +10,7 @@ import time
 path_in = '../data/in/'
 path_out = '../data/out/'
 path_src = ''
-version = 'allbuildings_stochastic'
-
+version = '36buildings_stochastic'
 
 
 # RC building models
@@ -53,7 +52,7 @@ buildings = list(dfb[s].keys())
 
 
 # TODO -Reducing size of problem here
-# buildings = buildings[0:5]
+buildings = buildings[0:36]
 
 # Loading parameters
 # exec(open(path_src+'parameters.py').read())
@@ -316,10 +315,15 @@ my_lp_problem += pulp.lpSum(probabilities.iloc[s]*O_tot[s] for s in range(scenar
 #  Optimization
 print('Problem constructed!')
 start_time = time.time()
-status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",1)]))
+status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",2), ("NodefileStart", 200)]))
 end_time = time.time() - start_time
 print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
 print(pulp.LpStatus[status])
+if status != 1:
+    print("Model not solved, writing lp file.")
+    my_lp_problem.writeLP("model_not_solved.lp")
+
+
 
 
 
