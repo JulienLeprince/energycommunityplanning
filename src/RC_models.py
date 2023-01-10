@@ -16,7 +16,8 @@ def RCmodel(lp_problem: pulp.LpProblem,
             Q_sp: pulp.LpVariable.dicts,
             H: int,
             b,
-            s: int = 0):
+            s: int = 0,
+            T_set: int = 20):
 
     Ti = pulp.LpVariable.dicts('var_Ti_blg'+str(b)+str(s), range(H + 1), cat='Continuous')
     Tm = pulp.LpVariable.dicts('var_Tm_blg'+str(b)+str(s), range(H + 1), cat='Continuous') if 'Tm' in model_name else 0
@@ -40,7 +41,8 @@ def RCmodel(lp_problem: pulp.LpProblem,
             lp_problem += Qis[t] == (Ts[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Ris'] * df_RC.loc[b, 'Ci'])
             #lp_problem += T_blg[b][t + 1] == Ts[t + 1] #+ gauss(0, var['Ts']))
             if t == 0:
-                lp_problem += Ts[t] == df_RC.loc[b, 'Ts0']
+                #lp_problem += Ts[t] == df_RC.loc[b, 'Ts0']
+                lp_problem += Ts[t] == T_set
         else:
             lp_problem += Qis[t] == 0
             #lp_problem += T_blg[b][t + 1] == Ti[t + 1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
@@ -50,7 +52,8 @@ def RCmodel(lp_problem: pulp.LpProblem,
             lp_problem += Tm[t+1] - Tm[t] == (Ti[t] - Tm[t])*1/(df_RC.loc[b, 'Rim']*df_RC.loc[b, 'Cm']) #+ gauss(0, var['Tm'])
             lp_problem += Qim[t] == (Tm[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rim'] * df_RC.loc[b, 'Ci'])
             if t == 0:
-                lp_problem += Tm[t] == df_RC.loc[b, 'Tm0']
+                #lp_problem += Tm[t] == df_RC.loc[b, 'Tm0']
+                lp_problem += Tm[t] == T_set
         else:
             lp_problem += Qim[t] == 0
 
@@ -60,7 +63,8 @@ def RCmodel(lp_problem: pulp.LpProblem,
                              + Q_sp[b][t]*1/(df_RC.loc[b, 'Ch']) #+ gauss(0, var['Th'])
             lp_problem += Qih[t] == (Th[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rih'] * df_RC.loc[b, 'Ci'])
             if t == 0:
-                lp_problem += Th[t] == df_RC.loc[b, 'Th0']
+                #lp_problem += Th[t] == df_RC.loc[b, 'Th0']
+                lp_problem += Th[t] == T_set
         else:
             lp_problem += Qih[t] == Q_sp[b][t]*1/(df_RC.loc[b, 'Ci'])
 
@@ -73,14 +77,16 @@ def RCmodel(lp_problem: pulp.LpProblem,
             lp_problem += Qie[t] == (Te[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ci']) \
                                         + (dfw['T_a'].iloc[t]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci'])
             if t == 0:
-                lp_problem += Te[t] == df_RC.loc[b, 'Te0']
+                #lp_problem += Te[t] == df_RC.loc[b, 'Te0']
+                lp_problem += Te[t] == T_set
         elif 'Te' in model_name:
             lp_problem += Te[t+1] - Te[t] == (Ti[t] - Te[t]) * 1/(df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ce']) \
                              + (dfw['T_a'].iloc[t] - Te[t]) * 1/(df_RC.loc[b, 'Rea'] * df_RC.loc[b, 'Ce'])
                              #+ gauss(0, var['Te'])
             lp_problem += Qie[t] == (Te[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ci'])
             if t == 0:
-                lp_problem += Te[t] == df_RC.loc[b, 'Te0']
+                #lp_problem += Te[t] == df_RC.loc[b, 'Te0']
+                lp_problem += Te[t] == T_set
         else:
             lp_problem += Qie[t] == (dfw['T_a'].iloc[t]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci'])
 
