@@ -27,6 +27,7 @@ p_elec, p_gas = dict(), dict()
 for s in range(scenario_nb):
     dfw[s] = pd.read_csv(path_in+'scenario_'+ str(s) +'.csv', usecols=[1,2])
     dfw[s].rename(columns = {'Ta':'T_a', 'Ps':'Q_sol'}, inplace = True)
+    dfw[s] = dfw[s].round(decimals=4)
 
     dfb[s] = dict()
     bi = 0
@@ -37,11 +38,14 @@ for s in range(scenario_nb):
         dfb[s][uuid].rename(columns = {uuid+'_T_blg_set':'T_blg_set', uuid+'_E_elec':'E_blg'}, inplace = True)
         dfb[s][uuid]['E_blg'] = dfb[s][uuid]['E_blg']/1000  # converting from W to kW
         bi += 2
+    dfb[s] = dfb[s].round(decimals=4)
 
     p_elec[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[3])
     p_elec[s] =p_elec[s]['Day-ahead Price [EUR/kWh]']
     p_gas[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[4])
     p_gas[s] = p_gas[s]['gas_price [EUR/kWh]']
+    p_elec[s] = p_elec[s].round(decimals=4)
+    p_gas[s] = p_gas[s].round(decimals=4)
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
 # buildings = buildings[0:5]
