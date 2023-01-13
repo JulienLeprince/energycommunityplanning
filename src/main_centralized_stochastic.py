@@ -46,7 +46,7 @@ for s in range(scenarios):
     dfb[s] = dfb[s].round(decimals=4)
 
     p_elec[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[3])
-    p_elec[s] =p_elec[s]['Day-ahead Price [EUR/kWh]']
+    p_elec[s] = p_elec[s]['Day-ahead Price [EUR/kWh]']
     p_gas[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[4])
     p_gas[s] = p_gas[s]['gas_price [EUR/kWh]']
     p_elec[s] = p_elec[s].round(decimals=4)
@@ -161,7 +161,7 @@ for s in range(scenarios):
     # Building block
     for b in buildings:
         # Building system
-        my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
+        my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s][b], Q_sp[s][b], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
         # my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
 
         for t in range(H):
@@ -222,8 +222,8 @@ for s in range(scenarios):
         my_lp_problem += Q_tes[s][b][0] == Q_tes[s][b][H]
     for t in range(H):
         # Grid topology - energy balance
-        my_lp_problem += sum(E_blg_out[s][b][t] for b in buildings) + E_mv_in[s][t] \
-                         == sum(E_blg_in[s][b][t] for b in buildings) + E_mv_out[s][t]
+        my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_in[s][t] \
+                         == sum(E_blg_in[s][bi][t] for bi in buildings) + E_mv_out[s][t]
         # Energy community - energy balance
         my_lp_problem += E_mv_in[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
                          == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_out[s][t] + E_hv_in[s][t]
@@ -354,6 +354,9 @@ df_obj_res = pd.DataFrame(columns=['O_tot', 'O_opr', 'O_co2', 'O_inv',
 for s in range(scenarios):
     for b in buildings:
         for t in range(H):
+            df_blg_t_res[s][b].loc[t, 'E_blg_out'] = pulp.value(E_blg_out[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'E_blg_in'] = pulp.value(E_blg_in[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'V_blg_gas'] = pulp.value(V_blg_gas[s][b][t])
             df_blg_t_res[s][b].loc[t, 'T_blg'] = pulp.value(T_blg[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_bat'] = pulp.value(E_blg_bat[s][b][t])
             df_blg_t_res[s][b].loc[t, 'Q_tes'] = pulp.value(Q_tes[s][b][t])

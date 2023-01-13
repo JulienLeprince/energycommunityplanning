@@ -33,7 +33,7 @@ def RCmodel(lp_problem: pulp.LpProblem,
     var = variance_parameters_identification(model_name, b)
 
     for t in range(H):
-        lp_problem += T_blg[b][t + 1] == Ti[t + 1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
+        lp_problem += T_blg[t + 1] == Ti[t + 1] #+ gauss(0, math.exp(df_RC.loc[b, 'e11']))
 
         # Sensor
         if 'Ts' in model_name:
@@ -60,13 +60,13 @@ def RCmodel(lp_problem: pulp.LpProblem,
         # Heater
         if 'Th' in model_name:
             lp_problem += Th[t+1] - Th[t] == (Ti[t] - Th[t]) * 1/(df_RC.loc[b, 'Rih'] * df_RC.loc[b, 'Ch']) \
-                             + Q_sp[b][t]*1/(df_RC.loc[b, 'Ch']) #+ gauss(0, var['Th'])
+                             + Q_sp[t]*1/(df_RC.loc[b, 'Ch']) #+ gauss(0, var['Th'])
             lp_problem += Qih[t] == (Th[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rih'] * df_RC.loc[b, 'Ci'])
             if t == 0:
                 #lp_problem += Th[t] == df_RC.loc[b, 'Th0']
                 lp_problem += Th[t] == T_set
         else:
-            lp_problem += Qih[t] == Q_sp[b][t]*1/(df_RC.loc[b, 'Ci'])
+            lp_problem += Qih[t] == Q_sp[t]*1/(df_RC.loc[b, 'Ci'])
 
         # Envelope
         if 'Te' in model_name and 'RiaAe' in model_name:

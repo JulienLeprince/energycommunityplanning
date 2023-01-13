@@ -178,7 +178,7 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
         # Building block
         for b in buildings:
             # Building system
-            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s], Q_sp[s], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
+            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s][b], Q_sp[s][b], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
 
             for t in range(H):
                 # my_lp_problem += T_blg[s][b][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary
@@ -241,8 +241,8 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
             my_lp_problem += Q_tes[s][b][0] == Q_tes[s][b][H]
         for t in range(H):
             # Grid topology - energy balance
-            my_lp_problem += sum(E_blg_out[s][b][t] for b in buildings) + E_mv_in[s][t] \
-                             == sum(E_blg_in[s][b][t] for b in buildings) + E_mv_out[s][t]
+            my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_in[s][t] \
+                             == sum(E_blg_in[s][bi][t] for bi in buildings) + E_mv_out[s][t]
             # Energy community - energy balance
             my_lp_problem += E_mv_in[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
                              == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_out[s][t] + \
@@ -369,6 +369,9 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
     for s in range(scenarios):
         for b in buildings:
             for t in range(H):
+                df_blg_t_res[s][b].loc[t, 'E_blg_out'] = pulp.value(E_blg_out[s][b][t])
+                df_blg_t_res[s][b].loc[t, 'E_blg_in'] = pulp.value(E_blg_in[s][b][t])
+                df_blg_t_res[s][b].loc[t, 'V_blg_gas'] = pulp.value(V_blg_gas[s][b][t])
                 df_blg_t_res[s][b].loc[t, 'T_blg'] = pulp.value(T_blg[s][b][t])
                 df_blg_t_res[s][b].loc[t, 'E_blg_bat'] = pulp.value(E_blg_bat[s][b][t])
                 df_blg_t_res[s][b].loc[t, 'Q_tes'] = pulp.value(Q_tes[s][b][t])
