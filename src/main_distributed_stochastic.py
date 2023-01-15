@@ -92,7 +92,7 @@ for s in range(scenarios):
         df_blg_t_res[s][b] = pd.DataFrame(0, index=range(H), columns=blg_t_cols)
     df_com_t_res[s] = pd.DataFrame(0, index=range(H), columns=com_t_cols)
     df_obj_blg_res[s] = pd.DataFrame(0, index=buildings, columns=obj_blg_cols)
-df_blg_res = pd.DataFrame(0, index=buildings, columns=blg_cols)
+df_blg_res = {s: pd.DataFrame(0, index=buildings, columns=blg_cols) for s in range(scenarios)}
 df_com_res = pd.DataFrame(0, index=[0], columns=com_cols)
 df_obj_res = pd.DataFrame(0, index=[0], columns=obj_cols)
 
