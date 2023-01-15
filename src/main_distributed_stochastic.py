@@ -189,7 +189,7 @@ for i in iterations:
         for s in range(scenarios):
 
             # Building block
-            my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
+            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
             # my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
 
             for t in range(H):
