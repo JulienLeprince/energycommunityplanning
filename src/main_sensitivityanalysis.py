@@ -4,9 +4,8 @@ import numpy as np
 import time
 
 # Path definition
-# path_in = r'C:/energycommunityplanning/data/in/'
-# path_out = r'C:/energycommunityplanning/data/out/'
-# path_src = r'C:/energycommunityplanning/src/'
+# path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
+# path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
 path_in = '../data/in/'
 path_out = '../data/out/'
 path_src = ''
@@ -26,7 +25,7 @@ scenarios = 1  # the problem is deterministic
 # Reading input data
 dfw, dfb = dict(), dict()
 p_elec, p_gas = dict(), dict()
-for s in range(scenarios):
+for s in range(scenario_nb):
     dfw[s] = pd.read_csv(path_in+'scenario_'+ str(s) +'.csv', usecols=[1,2])
     dfw[s].rename(columns = {'Ta':'T_a', 'Ps':'Q_sol'}, inplace = True)
     dfw[s] = dfw[s].round(decimals=4)
