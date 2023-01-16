@@ -240,11 +240,11 @@ for sa_setup in sa_setups:
                     my_lp_problem += Q_tes[s][b][0] == Q_tes[s][b][H]
                 for t in range(H):
                     # Grid topology - energy balance
-                    my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_in[s][t] \
-                                     == sum(E_blg_in[s][bi][t] for bi in buildings) + E_mv_out[s][t]
+                    my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_out[s][t] \
+                                     == sum(E_blg_in[s][bi][t] for bi in buildings) + E_mv_in[s][t]
                     # Energy community - energy balance
-                    my_lp_problem += E_mv_in[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
-                                     == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_out[s][t] + E_hv_in[s][t]
+                    my_lp_problem += E_mv_out[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
+                                     == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_in[s][t] + E_hv_in[s][t]
                     # Battery
                     my_lp_problem += E_com_bat[s][t+1] == E_com_bat[s][t] * decay_com_bat \
                                                          + E_com_bat_ch[s][t] * eff_com_bat_ch \

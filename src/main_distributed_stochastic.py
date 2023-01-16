@@ -251,13 +251,13 @@ for i in iterations:
             for t in range(H):
                 # Grid topology - energy balance - distributed problem linking constraint
                 my_lp_problem += sum(df_blg_t_res[s][bi].loc[t, 'E_blg_out'] for bi in buildings if bi != b) \
-                                 + E_blg_out[s][t] + E_mv_in[s][t] \
+                                 + E_blg_out[s][t] + E_mv_out[s][t] \
                                  == sum(df_blg_t_res[s][bi].loc[t, 'E_blg_in'] for bi in buildings if bi != b) \
-                                 + E_blg_in[s][t] + E_mv_out[s][t]
+                                 + E_blg_in[s][t] + E_mv_in[s][t]
 
                 # Energy community - energy balance
-                my_lp_problem += E_mv_in[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
-                                 == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_out[s][t] + E_hv_in[s][t]
+                my_lp_problem += E_mv_out[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
+                                 == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_in[s][t] + E_hv_in[s][t]
                 # Battery
                 my_lp_problem += E_com_bat[s][t + 1] == E_com_bat[s][t] * decay_com_bat \
                                  + E_com_bat_ch[s][t] * eff_com_bat_ch \
