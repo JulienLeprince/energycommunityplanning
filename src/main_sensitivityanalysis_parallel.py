@@ -37,8 +37,8 @@ for s in range(scenario_nb):
         dfb[s][uuid] = data
         dfb[s][uuid].rename(columns = {uuid+'_T_blg_set':'T_blg_set', uuid+'_E_elec':'E_blg'}, inplace = True)
         dfb[s][uuid]['E_blg'] = dfb[s][uuid]['E_blg']/1000  # converting from W to kW
+        dfb[s][uuid] = dfb[s].round(decimals=4)
         bi += 2
-    dfb[s] = dfb[s].round(decimals=4)
 
     p_elec[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[3])
     p_elec[s] =p_elec[s]['Day-ahead Price [EUR/kWh]']
