@@ -9,13 +9,15 @@ import time
 path_in = '../data/in/'
 path_out = '../data/out/'
 path_src = ''
-version = '36buildings_sensitivity'
+version = 'allbuildings_sensitivity'
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
 df_RC = df_RC[df_RC['nCPBES'] < 0.003]
+uuids_to_drop_due_to_extreme_thermal_mass = ['e3c6809f-74a2-4d61-af25-c9d49d70cb07', '151effd4-4ffe-464d-ad61-e0667eee90d6']
+df_RC.drop(uuids_to_drop_due_to_extreme_thermal_mass, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
@@ -47,8 +49,10 @@ for s in range(scenario_nb):
     p_gas[s] = p_gas[s]['gas_price [EUR/kWh]']
     p_elec[s] = p_elec[s].round(decimals=4)
     p_gas[s] = p_gas[s].round(decimals=4)
+
+H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
-buildings = buildings[0:36]
+#buildings = buildings[0:36]
 
 # Loading parameters
 # exec(open(path_src+'parameters.py').read())

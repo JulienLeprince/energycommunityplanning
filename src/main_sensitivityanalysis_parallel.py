@@ -15,6 +15,8 @@ file_RCmodels = path_in+'all_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
 df_RC = df_RC[df_RC['nCPBES'] < 0.003]
+uuids_to_drop_due_to_extreme_thermal_mass = ['e3c6809f-74a2-4d61-af25-c9d49d70cb07', '151effd4-4ffe-464d-ad61-e0667eee90d6']
+df_RC.drop(uuids_to_drop_due_to_extreme_thermal_mass, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
