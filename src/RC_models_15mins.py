@@ -9,12 +9,13 @@ file = 'all_greybox_fits.csv'
 df_RC = pd.read_csv(path_RCmodels+file, index_col='uuid')
 
 # RC models requiring either heating demands or upsampling too large for the problem
-uuids_heatingdemandtoolarge = ['12e8ebfa-0ff9-4924-b2e1-d70f47005b2a',
-                               '1f218889-a8e9-4d08-b16c-5ab6dd4d9a46',
-                               'b8787ac9-4ae7-4e83-bc68-826b74e6c5d6',
-                               'b9b35765-804b-4a67-a59b-248b7ce94080',
-                               'd1a6575d-e903-4be9-a824-f5c63a747edf',
-                               '9f8cb82d-4fce-4f67-9a94-dd6706a0f257']
+# uuids_heatingdemandtoolarge = ['12e8ebfa-0ff9-4924-b2e1-d70f47005b2a',
+#                                '1f218889-a8e9-4d08-b16c-5ab6dd4d9a46',
+#                                'b8787ac9-4ae7-4e83-bc68-826b74e6c5d6',
+#                                'b9b35765-804b-4a67-a59b-248b7ce94080',
+#                                'd1a6575d-e903-4be9-a824-f5c63a747edf',
+#                                '9f8cb82d-4fce-4f67-9a94-dd6706a0f257']
+uuids_heatingdemandtoolarge = []
 uuids_upsamplingtolarge = ['17aad2c4-aae9-4489-bee9-bcd7a666bf0c',
                            '28267176-3b1d-454a-ab66-5e6c8205f6db',
                            '2ca893a7-1fb6-4b6b-9c17-490489ff89f7',
