@@ -80,6 +80,7 @@ def RCmodel(lp_problem: pulp.LpProblem,
             lp_problem += Q_sp[t] == Q_in[t * upsampling_factor + i]*upsampling_factor
 
     for t in range(H * upsampling_factor):
+        t_original_sampling = int(t/upsampling_factor)
 
         # Sensor
         if 'Ts' in model_name:
@@ -113,24 +114,24 @@ def RCmodel(lp_problem: pulp.LpProblem,
         # Envelope
         if 'Te' in model_name and 'RiaAe' in model_name:
             lp_problem += Te[t+1] - Te[t] == (Ti[t] - Te[t]) * 1/(df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ce']*upsampling_factor) \
-                             + (dfw['T_a'].iloc[t] - Te[t]) * 1/(df_RC.loc[b, 'Rea'] * df_RC.loc[b, 'Ce']*upsampling_factor) \
-                             + dfw['Q_sol'].iloc[t]*df_RC.loc[b, 'Ae']/(df_RC.loc[b, 'Ce']*upsampling_factor)
+                             + (dfw['T_a'].iloc[t_original_sampling] - Te[t]) * 1/(df_RC.loc[b, 'Rea'] * df_RC.loc[b, 'Ce']*upsampling_factor) \
+                             + dfw['Q_sol'].iloc[t_original_sampling]*df_RC.loc[b, 'Ae']/(df_RC.loc[b, 'Ce']*upsampling_factor)
             lp_problem += Qie[t] == (Te[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ci']*upsampling_factor) \
-                                        + (dfw['T_a'].iloc[t]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci']*upsampling_factor)
+                                        + (dfw['T_a'].iloc[t_original_sampling]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci']*upsampling_factor)
             if t == 0:
                 lp_problem += Te[t] == T_set
         elif 'Te' in model_name:
             lp_problem += Te[t+1] - Te[t] == (Ti[t] - Te[t]) * 1/(df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ce']*upsampling_factor) \
-                             + (dfw['T_a'].iloc[t] - Te[t]) * 1/(df_RC.loc[b, 'Rea'] * df_RC.loc[b, 'Ce']*upsampling_factor)
+                             + (dfw['T_a'].iloc[t_original_sampling] - Te[t]) * 1/(df_RC.loc[b, 'Rea'] * df_RC.loc[b, 'Ce']*upsampling_factor)
             lp_problem += Qie[t] == (Te[t] - Ti[t]) * 1 / (df_RC.loc[b, 'Rie'] * df_RC.loc[b, 'Ci']*upsampling_factor)
             if t == 0:
                 lp_problem += Te[t] == T_set
         else:
-            lp_problem += Qie[t] == (dfw['T_a'].iloc[t]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci']*upsampling_factor)
+            lp_problem += Qie[t] == (dfw['T_a'].iloc[t_original_sampling]-Ti[t]) * 1/(df_RC.loc[b, 'Ria']*df_RC.loc[b, 'Ci']*upsampling_factor)
 
         # Inside temperature
         lp_problem += Ti[t + 1] - Ti[t] == Qie[t] + Qih[t] + Qim[t] + Qis[t] \
-                         + dfw['Q_sol'].iloc[t] * df_RC.loc[b, 'Aw'] / (df_RC.loc[b, 'Ci']*upsampling_factor)
+                         + dfw['Q_sol'].iloc[t_original_sampling] * df_RC.loc[b, 'Aw'] / (df_RC.loc[b, 'Ci']*upsampling_factor)
 
     return lp_problem
 
