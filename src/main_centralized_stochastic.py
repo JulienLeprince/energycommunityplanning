@@ -10,16 +10,20 @@ import time
 path_in = '../data/in/'
 path_out = '../data/out/'
 path_src = ''
-version = '36buildings_stochastic'
+version = 'proofofconcept_5buildings'
 
+# Loading parameters
+from parameters import *
+# Loading RC models
+from RC_models_15mins import *
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
-df_RC = df_RC[df_RC['nCPBES'] < 0.003]
-uuids_to_drop_due_to_extreme_thermal_mass = ['e3c6809f-74a2-4d61-af25-c9d49d70cb07', '151effd4-4ffe-464d-ad61-e0667eee90d6']
-df_RC.drop(uuids_to_drop_due_to_extreme_thermal_mass, inplace=True)
+df_RC = df_RC[df_RC['nCPBES'] < 0.01]
+df_RC.drop(uuids_heatingdemandtoolarge, inplace=True)
+df_RC.drop(uuids_upsamplingtolarge, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
@@ -56,17 +60,11 @@ for s in range(scenarios):
 
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
+buildings = [value for value in buildings if value in df_RC.index]
 
 
 # TODO -Reducing size of problem here
-buildings = buildings[0:36]
-
-# Loading parameters
-# exec(open(path_src+'parameters.py').read())
-from parameters import *
-# Loading RC models
-# exec(open(path_src+'RC_models.py').read())
-from RC_models import *
+buildings = buildings[0:5]
 
 
 # Calculating heat pump COP

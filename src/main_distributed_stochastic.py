@@ -6,7 +6,7 @@ import time
 # Loading parameters
 from parameters import *
 # Loading RC models
-from RC_models import *
+from RC_models_15mins import *
 
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
@@ -14,22 +14,22 @@ from RC_models import *
 path_in = '../data/in/'
 path_out = '../data/out/'
 path_src = ''
-version = '5buildings_1scenario'
+version = 'proofofconcept_5buildings'
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
-df_RC = df_RC[df_RC['nCPBES'] < 0.003]
-uuids_to_drop_due_to_extreme_thermal_mass = ['e3c6809f-74a2-4d61-af25-c9d49d70cb07', '151effd4-4ffe-464d-ad61-e0667eee90d6']
-df_RC.drop(uuids_to_drop_due_to_extreme_thermal_mass, inplace=True)
+df_RC = df_RC[df_RC['nCPBES'] < 0.01]
+df_RC.drop(uuids_heatingdemandtoolarge, inplace=True)
+df_RC.drop(uuids_upsamplingtolarge, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenarios = probabilities.shape[0]
 
 # TODO - Reducing size of problem here to 1 (deterministic)
-scenarios = 1
+# scenarios = 1
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -60,6 +60,7 @@ for s in range(scenarios):
 
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
+buildings = [value for value in buildings if value in df_RC.index]
 
 
 # TODO -Reducing size of problem here
