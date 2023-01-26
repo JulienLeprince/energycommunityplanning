@@ -79,6 +79,8 @@ def RCmodel(lp_problem: pulp.LpProblem,
         lp_problem += T_blg[t + 1] == Ti[t * upsampling_factor + 1]
         for i in range(upsampling_factor):
             lp_problem += Q_sp[t] == Q_in[t * upsampling_factor + i]  # * upsampling_factor  (was accounted for twice)
+    
+    lp_problem += Ti[0] == T_set
 
     for t in range(H * upsampling_factor):
         t_original_sampling = int(t/upsampling_factor)
