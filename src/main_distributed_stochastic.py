@@ -81,7 +81,7 @@ iterations = range(30)
 df_objective_function = pd.DataFrame(columns=buildings, index=iterations)
 df_blg_t_res, df_com_t_res, df_com_res, df_obj_blg_res, df_obj_res = dict(), dict(), dict(), dict(), dict()
 blg_t_cols = ['T_blg', 'E_blg_bat', 'Q_tes', 'Q_stc', 'Q_sp', 'Q_tes_ch', 'Q_tes_dch', 'Q_hp', 'COP_hp',
-              'E_blg_bat_ch', 'E_blg_bat_dch', 'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'V_blg_gas']
+              'E_blg_bat_ch', 'E_blg_bat_dch', 'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas']
 blg_cols = ['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol', 'i_blg_hp', 'i_blg_bat',
             'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol']
 com_t_cols = ['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch', 'E_com_bat_dch', 'E_com_hyd',
@@ -362,6 +362,7 @@ for i in iterations:
             for t in range(H):
                 df_blg_t_res[s][b].loc[t, 'E_blg_out'] = pulp.value(E_blg_out[s][t])
                 df_blg_t_res[s][b].loc[t, 'E_blg_in'] = pulp.value(E_blg_in[s][t])
+                df_blg_t_res[s][b].loc[t, 'E_blg_load'] = dfb[s][b]['E_blg'].iloc[t]
                 df_blg_t_res[s][b].loc[t, 'V_blg_gas'] = pulp.value(V_blg_gas[s][t])
                 df_blg_t_res[s][b].loc[t, 'T_blg'] = pulp.value(T_blg[s][t])
                 df_blg_t_res[s][b].loc[t, 'E_blg_bat'] = pulp.value(E_blg_bat[s][t])

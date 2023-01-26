@@ -340,7 +340,7 @@ for s in range(scenarios):
     for b in buildings:
         df_blg_t_res[s][b] = pd.DataFrame(columns=['T_blg', 'E_blg_bat', 'Q_tes', 'Q_stc', 'Q_sp', 'Q_tes_ch',
                                                    'Q_tes_dch', 'Q_hp', 'COP_hp', 'E_blg_bat_ch', 'E_blg_bat_dch',
-                                                   'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'V_blg_gas'])
+                                                   'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas'])
     df_blg_res[s] = pd.DataFrame(columns=['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol',
                                           'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol'])
     df_com_t_res[s] = pd.DataFrame(columns=['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch',
@@ -356,6 +356,7 @@ for s in range(scenarios):
         for t in range(H):
             df_blg_t_res[s][b].loc[t, 'E_blg_out'] = pulp.value(E_blg_out[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_in'] = pulp.value(E_blg_in[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'E_blg_load'] = dfb[s][b]['E_blg'].iloc[t]
             df_blg_t_res[s][b].loc[t, 'V_blg_gas'] = pulp.value(V_blg_gas[s][b][t])
             df_blg_t_res[s][b].loc[t, 'T_blg'] = pulp.value(T_blg[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_bat'] = pulp.value(E_blg_bat[s][b][t])
