@@ -62,9 +62,9 @@ buildings = [value for value in buildings if value in df_RC.index]
 # Sensitivity analysis setups
 sa_setups = ['userbehavior', 'climate', 'economic']
 SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
-s_occ_and_climate = 6
-s_occ_and_eco = 6
-s_climate_and_eco = 8
+s_occ_and_climate = 5  #6
+s_occ_and_eco = 5  #6
+s_climate_and_eco = 9  #8
 
 
 def parallel_pulp_sensitivity_analysis(tuple_in,
