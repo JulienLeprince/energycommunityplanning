@@ -34,9 +34,8 @@ df_RC.drop(uuids_upsamplingtolarge, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
-#scenario_nb = probabilities.shape[0]
+scenario_nb = probabilities.shape[0]
 scenarios = 1  # the problem is deterministic
-scenario_nb = 1  # 1 case study only
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -70,14 +69,13 @@ buildings = [value for value in buildings if value in df_RC.index]
 
 
 # Sensitivity analysis setups
-sa_setups = ['userbehavior', 'climate', 'economic']
+sa_setups = ['userbehavior'] # 1 case study only
+scenario_nb = 1  # 1 case study only
 SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
 s_occ_and_climate = 5  #6
 s_occ_and_eco = 5  #6
 s_climate_and_eco = 9  #8
 
-
-sa_setups = ['userbehavior']
 
 for sa_setup in sa_setups:
         # Sensitivity analysis scenario loop
