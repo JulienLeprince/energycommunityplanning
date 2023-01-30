@@ -451,7 +451,21 @@ for i in iterations:
             df_obj_res.loc[s, 'p_com_hyd'] = pulp.value(p_com_hyd[s])
             df_obj_res.loc[s, 'p_com_pv'] = pulp.value(p_com_pv[s])
 
-        df_objective_function.loc[i, b] = pulp.value(my_lp_problem.objective)
+        # Calculating total objective function
+        O_buildings = []
+        for s in scenarios:
+            O_buildings_per_scenario = []
+            for bi in buildings:
+                if bi != b:
+                    O_inv_blg = df_blg_res[s].loc[bi, 'p_blg_bat'] + df_blg_res[s].loc[bi, 'p_blg_tes'] + df_blg_res[s].loc[bi, 'p_blg_stc'] + df_blg_res[s].loc[bi, 'p_blg_pv'] \
+                                + df_blg_res[s].loc[bi, 'p_blg_bol'] + df_blg_res[s].loc[bi, 'p_blg_hp']
+                    O_co2_blg = np.sum(df_blg_t_res[s][bi].loc[t, 'V_blg_gas']*p_co2 + df_blg_t_res[s][bi].loc[t, 'V_blg_gas'] * p_gas[s][t] for t in range(H))
+                    O_slk = np.sum(df_blg_t_res[s][bi].loc[t, 'slk_blg_out']*p_slk + df_blg_t_res[s][bi].loc[t, 'slk_blg_in']*p_slk + df_blg_t_res[s][bi].loc[t, 'O_slk_blg'] for t in range(H))
+                    O_buildings_per_scenario.append(O_inv_blg + O_co2_blg + O_slk)
+            expected_costs = np.sum(O_buildings_per_scenario)*probabilities.iloc[s]
+            O_buildings.append(expected_costs)
+        tot_objective = pulp.value(my_lp_problem.objective) + np.sum(O_buildings)
+        df_objective_function.loc[i, b] = tot_objective
 
 
 file = path_out + 'ecp_stoch_' + version + '_blgs' + str(len(buildings))
