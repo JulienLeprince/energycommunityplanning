@@ -87,6 +87,7 @@ my_lp_problem = pulp.LpProblem('My_LP_Problem', pulp.LpMinimize)
 # Variables - building block
 # Continous
 T_blg = pulp.LpVariable.dicts('var_T_blg', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continuous')  # Building inside temperature
+O_slk_blg = pulp.LpVariable.dicts('var_O_slk_blg', (range(scenarios), buildings, range(H)), lowBound=0, cat='Continuous')
 E_blg_bat = pulp.LpVariable.dicts('var_E_blg_bat', (range(scenarios), buildings, range(H + 1)), cat='Continuous')
 Q_tes = pulp.LpVariable.dicts('var_Q_tes', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continuous')
 Q_stc = pulp.LpVariable.dicts('var_Q_stc', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continuous')
@@ -99,8 +100,10 @@ E_blg_bat_ch = pulp.LpVariable.dicts('var_E_blg_bat_ch', (range(scenarios), buil
 E_blg_bat_dch = pulp.LpVariable.dicts('var_E_blg_bat_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
 E_blg_hp = pulp.LpVariable.dicts('var_E_blg_hp', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
 E_blg_pv = pulp.LpVariable.dicts('var_E_blg_pv', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
-E_blg_in = pulp.LpVariable.dicts('var_E_blg_in', (range(scenarios), buildings, range(H + 1)), lowBound=0, upBound=E_lv_max, cat='Continous')
-E_blg_out = pulp.LpVariable.dicts('var_E_blg_out', (range(scenarios), buildings, range(H + 1)), lowBound=0, upBound=E_lv_max, cat='Continous')
+E_blg_in = pulp.LpVariable.dicts('var_E_blg_in', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
+E_blg_out = pulp.LpVariable.dicts('var_E_blg_out', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
+slk_blg_in = pulp.LpVariable.dicts('var_slk_blg_in', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
+slk_blg_out = pulp.LpVariable.dicts('var_slk_blg_out', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
 V_blg_gas = pulp.LpVariable.dicts('var_V_blg_gas', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Continous')
 # Sizing
 C_blg_hp = pulp.LpVariable.dicts('var_C_blg_hp', (range(scenarios), buildings), lowBound=0, upBound=C_blg_hp_max, cat='Continous')
@@ -124,8 +127,10 @@ i_blg_pv = pulp.LpVariable.dicts('var_i_blg_pv', (range(scenarios), buildings), 
 # Variables community
 # Continous
 E_hv_in = pulp.LpVariable.dicts('var_E_net', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
-E_mv_out = pulp.LpVariable.dicts('var_E_mv_out', (range(scenarios), range(H)), lowBound=0, upBound=E_mv_max, cat='Continuous')
-E_mv_in = pulp.LpVariable.dicts('var_E_mv_in', (range(scenarios), range(H)), lowBound=0, upBound=E_mv_max, cat='Continuous')
+E_mv_out = pulp.LpVariable.dicts('var_E_mv_out', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
+slk_mv_out = pulp.LpVariable.dicts('var_slk_mv_out', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
+E_mv_in = pulp.LpVariable.dicts('var_E_mv_in', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
+slk_mv_in = pulp.LpVariable.dicts('var_slk_mv_in', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
 E_com_pv = pulp.LpVariable.dicts('var_E_com_pv', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
 E_com_bat = pulp.LpVariable.dicts('var_E_com_bat', (range(scenarios), range(H + 1)), lowBound=0, cat='Continuous')
 E_com_bat_ch = pulp.LpVariable.dicts('var_E_com_bat_ch', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
@@ -153,6 +158,7 @@ O_tot = pulp.LpVariable.dicts('var_O_tot', range(scenarios), lowBound=0, cat='Co
 O_opr = pulp.LpVariable.dicts('var_O_opr', range(scenarios), lowBound=0, cat='Continous')
 O_co2 = pulp.LpVariable.dicts('var_O_co2', range(scenarios), lowBound=0, cat='Continous')
 O_inv = pulp.LpVariable.dicts('var_O_inv', range(scenarios), lowBound=0, cat='Continous')
+O_slk = pulp.LpVariable.dicts('var_O_slk', range(scenarios), lowBound=0, cat='Continous')
 p_blg_bat = pulp.LpVariable.dicts('var_p_blg_bat', (range(scenarios), buildings), lowBound=0, cat='Continous')
 p_blg_tes = pulp.LpVariable.dicts('var_p_blg_tes', (range(scenarios), buildings), lowBound=0, cat='Continous')
 p_blg_hp = pulp.LpVariable.dicts('var_p_blg_hp', (range(scenarios), buildings), lowBound=0, cat='Continous')
@@ -169,7 +175,8 @@ for s in range(scenarios):
     # Building block
     for b in buildings:
         # Building system
-        my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s][b], Q_sp[s][b], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
+        my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s][b], Q_sp[s][b],
+                                O_slk_blg[s][b], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
         # my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
 
         for t in range(H):
@@ -211,6 +218,10 @@ for s in range(scenarios):
             my_lp_problem += Q_sp[s][b][t] + Q_tes_ch[s][b][t] == Q_tes_dch[s][b][t] + Q_hp[s][b][t] + Q_bol[s][b][t]
             my_lp_problem += dfb[s][b]['E_blg'].iloc[t] + E_blg_bat_ch[s][b][t] + E_blg_hp[s][b][t] + E_blg_out[s][b][t] \
                              == E_blg_bat_dch[s][b][t] + E_blg_pv[s][b][t] + E_blg_in[s][b][t]
+            # Building slk
+            my_lp_problem += E_blg_in[s][b][t] <= E_lv_max + slk_blg_in[s][b][t]
+            my_lp_problem += E_blg_out[s][b][t] <= E_lv_max + slk_blg_out[s][b][t]
+
         # Sizing
         my_lp_problem += C_blg_bat[s][b] <= C_blg_bat_max * i_blg_bat[s][b]
         my_lp_problem += C_blg_bat[s][b] >= C_blg_bat_min * i_blg_bat[s][b]
@@ -235,6 +246,10 @@ for s in range(scenarios):
         # Energy community - energy balance
         my_lp_problem += E_mv_out[s][t] + E_com_bat_ch[s][t] + E_com_hyd_ch[s][t] \
                          == E_com_bat_dch[s][t] + E_com_hyd_dch[s][t] + E_com_pv[s][t] + E_mv_in[s][t] + E_hv_in[s][t]
+        # Slack community
+        my_lp_problem += E_mv_out[s][t] <= E_mv_max + slk_mv_out[s][t]
+        my_lp_problem += E_mv_in[s][t] <= E_mv_max + slk_mv_in[s][t]
+
         # Battery
         my_lp_problem += E_com_bat[s][t + 1] == E_com_bat[s][t] * decay_com_bat \
                          + E_com_bat_ch[s][t] * eff_com_bat_ch \
@@ -294,14 +309,17 @@ for s in range(scenarios):
                      (inv_lvl_com_elec + a_com_elec) * C_com_elec[s] + b_com_elec * i_com_hyd[s] + \
                      (inv_lvl_com_fc + a_com_fc) * C_com_fc[s] + b_com_fc * i_com_hyd[s]
 
-    # Total costs = Operational + Investment costs
+    # Total costs = Operational + Investment costs + Slacks
     my_lp_problem += O_opr[s] == pulp.lpSum(E_hv_in[s][t] * p_elec[s][t] for t in range(H)) \
                      + pulp.lpSum(V_blg_gas[s][b][t] * p_gas[s][t] for t in range(H) for b in buildings)
     my_lp_problem += O_co2[s] == pulp.lpSum(V_blg_gas[s][b][t] for t in range(H) for b in buildings) * p_co2
     my_lp_problem += O_inv[s] == pulp.lpSum(p_blg_bat[s][b] + p_blg_tes[s][b] + p_blg_hp[s][b] + p_blg_bol[s][b]
                                      + p_blg_pv[s][b] + p_blg_stc[s][b] for b in buildings) \
                      + p_com_bat[s] + p_com_hyd[s] + p_com_pv[s]
-    my_lp_problem += O_tot[s] == O_opr[s] + O_inv[s] + O_co2[s]
+    my_lp_problem += O_slk[s] == pulp.lpSum(slk_mv_out[s][t] + slk_mv_in[s][t] for t in range(H))* p_slk \
+                                    + pulp.lpSum(slk_blg_in[s][b][t] + slk_blg_out[s][b][t] for b in buildings for t in range(H)) * p_slk \
+                                    + pulp.lpSum(O_slk_blg[s][b][t] for b in buildings for t in range(H))
+    my_lp_problem += O_tot[s] == O_opr[s] + O_inv[s] + O_co2[s] + O_slk[s]
 
 # Non anticipativity constraint
 for s1 in range(scenarios):
@@ -346,17 +364,19 @@ df_blg_t_res, df_blg_res, df_com_t_res, df_com_res, df_obj_blg_res, df_obj_res =
 for s in range(scenarios):
     df_blg_t_res[s] = dict()
     for b in buildings:
-        df_blg_t_res[s][b] = pd.DataFrame(columns=['T_blg', 'E_blg_bat', 'Q_tes', 'Q_stc', 'Q_sp', 'Q_tes_ch',
+        df_blg_t_res[s][b] = pd.DataFrame(columns=['T_blg', 'O_slk_blg', 'E_blg_bat', 'Q_tes', 'Q_stc', 'Q_sp', 'Q_tes_ch',
                                                    'Q_tes_dch', 'Q_hp', 'COP_hp', 'E_blg_bat_ch', 'E_blg_bat_dch',
-                                                   'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas'])
+                                                   'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas',
+                                                   'slk_blg_in', 'slk_blg_out'])
     df_blg_res[s] = pd.DataFrame(columns=['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol',
                                           'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol'])
     df_com_t_res[s] = pd.DataFrame(columns=['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch',
-                                            'E_com_bat_dch', 'E_com_hyd', 'E_com_hyd_ch', 'E_com_hyd_dch'])
+                                            'E_com_bat_dch', 'E_com_hyd', 'E_com_hyd_ch', 'E_com_hyd_dch',
+                                            'slk_mv_out', 'slk_mv_in'])
     df_obj_blg_res[s] = pd.DataFrame(columns=['p_blg_bat', 'p_blg_tes', 'p_blg_hp', 'p_blg_bol', 'p_blg_pv',
                                               'p_blg_stc'])
 df_com_res = pd.DataFrame(columns=['A_com_pv', 'C_com_bat', 'C_com_hyd', 'i_com_bat', 'i_com_hyd', 'i_com_pv'])
-df_obj_res = pd.DataFrame(columns=['O_tot', 'O_opr', 'O_co2', 'O_inv',
+df_obj_res = pd.DataFrame(columns=['O_tot', 'O_opr', 'O_co2', 'O_inv', 'O_slk',
                                    'p_com_bat', 'p_com_hyd', 'p_com_pv'])
 
 for s in range(scenarios):
@@ -364,9 +384,12 @@ for s in range(scenarios):
         for t in range(H):
             df_blg_t_res[s][b].loc[t, 'E_blg_out'] = pulp.value(E_blg_out[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_in'] = pulp.value(E_blg_in[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'slk_blg_out'] = pulp.value(slk_blg_out[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'slk_blg_in'] = pulp.value(slk_blg_in[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_load'] = dfb[s][b]['E_blg'].iloc[t]
             df_blg_t_res[s][b].loc[t, 'V_blg_gas'] = pulp.value(V_blg_gas[s][b][t])
             df_blg_t_res[s][b].loc[t, 'T_blg'] = pulp.value(T_blg[s][b][t])
+            df_blg_t_res[s][b].loc[t, 'O_slk_blg'] = pulp.value(O_slk_blg[s][b][t])
             df_blg_t_res[s][b].loc[t, 'E_blg_bat'] = pulp.value(E_blg_bat[s][b][t])
             df_blg_t_res[s][b].loc[t, 'Q_tes'] = pulp.value(Q_tes[s][b][t])
             df_blg_t_res[s][b].loc[t, 'Q_stc'] = pulp.value(Q_stc[s][b][t])
@@ -399,6 +422,8 @@ for s in range(scenarios):
     for t in range(H):
         df_com_t_res[s].loc[t, 'E_hv_in'] = pulp.value(E_hv_in[s][t])
         df_com_t_res[s].loc[t, 'E_mv_out'] = pulp.value(E_mv_out[s][t])
+        df_com_t_res[s].loc[t, 'slk_mv_in'] = pulp.value(slk_mv_in[s][t])
+        df_com_t_res[s].loc[t, 'slk_mv_out'] = pulp.value(slk_mv_out[s][t])
         df_com_t_res[s].loc[t, 'E_mv_in'] = pulp.value(E_mv_in[s][t])
         df_com_t_res[s].loc[t, 'E_com_pv'] = pulp.value(E_com_pv[s][t])
         df_com_t_res[s].loc[t, 'E_com_bat'] = pulp.value(E_com_bat[s][t])
@@ -418,6 +443,7 @@ for s in range(scenarios):
     df_obj_res.loc[s, 'O_opr'] = pulp.value(O_opr[s])
     df_obj_res.loc[s, 'O_co2'] = pulp.value(O_co2[s])
     df_obj_res.loc[s, 'O_inv'] = pulp.value(O_inv[s])
+    df_obj_res.loc[s, 'O_slk'] = pulp.value(O_slk[s])
     df_obj_res.loc[s, 'p_com_bat'] = pulp.value(p_com_bat[s])
     df_obj_res.loc[s, 'p_com_hyd'] = pulp.value(p_com_hyd[s])
     df_obj_res.loc[s, 'p_com_pv'] = pulp.value(p_com_pv[s])

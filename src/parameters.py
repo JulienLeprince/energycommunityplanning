@@ -2,6 +2,7 @@
 
 # Economic data
 p_co2 = 85.22 / 1000000 * 200.8  # eur/tCo2 * gco2/tco2 * gCO2/kWh
+p_slk = 10e3
 r = 0.028
 A_blg_roof_max = 36  # m2
 

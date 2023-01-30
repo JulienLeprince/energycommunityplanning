@@ -53,11 +53,13 @@ def RCmodel(lp_problem: pulp.LpProblem,
             dfw: pd.DataFrame,
             T_blg: pulp.LpVariable.dicts,
             Q_sp: pulp.LpVariable.dicts,
+            O_slk_blg: pulp.LpVariable.dicts,
             H: int,
             b: (str, int),
             s: int = 0,
             T_set: int = 20,
-            upsampling_factor: int = 4):
+            upsampling_factor: int = 4,
+            p_slk: int = 10e3):
 
     Ti = pulp.LpVariable.dicts('var_Ti_blg'+str(b)+str(s), range(H * upsampling_factor + 1), cat='Continuous')
     Tm = pulp.LpVariable.dicts('var_Tm_blg'+str(b)+str(s), range(H * upsampling_factor + 1), cat='Continuous') if 'Tm' in model_name else 0
@@ -70,13 +72,16 @@ def RCmodel(lp_problem: pulp.LpProblem,
     Qih = pulp.LpVariable.dicts('var_Qih_blg'+str(b)+str(s), range(H * upsampling_factor), cat='Continuous')
     Qis = pulp.LpVariable.dicts('var_Qis_blg'+str(b)+str(s), range(H * upsampling_factor), cat='Continuous')
 
-    Q_in = pulp.LpVariable.dicts('var_Qin_blg' + str(b) + str(s), range(H * upsampling_factor), cat='Continuous')
+    s_Ti_pos = pulp.LpVariable.dicts('var_s_Ti_pos_blg'+str(b)+str(s), range(H+1), lowBound=0, cat='Continuous')
+    s_Ti_neg = pulp.LpVariable.dicts('var_s_Ti_neg_blg'+str(b)+str(s), range(H+1), lowBound=0, cat='Continuous')
+    Q_in = pulp.LpVariable.dicts('var_Qin_blg' + str(b) + str(s), range(H * upsampling_factor), lowBound=0, cat='Continuous')
 
     var = variance_parameters_identification(model_name, b)
 
     # Linking constraint between two different sampling times
     for t in range(H):
-        lp_problem += T_blg[t + 1] == Ti[t * upsampling_factor + 1]
+        lp_problem += T_blg[t + 1] == Ti[t * upsampling_factor + 1] + s_Ti_pos[t + 1] - s_Ti_neg[t + 1]
+        lp_problem += O_slk_blg[t] >= (s_Ti_pos[t + 1] + s_Ti_neg[t + 1]) * p_slk
         for i in range(upsampling_factor):
             lp_problem += Q_sp[t] == Q_in[t * upsampling_factor + i]  # * upsampling_factor  (was accounted for twice)
     
