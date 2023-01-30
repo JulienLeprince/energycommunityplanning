@@ -371,6 +371,20 @@ for sa_setup in sa_setups:
             end_time = time.time() - start_time
             print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
             print(pulp.LpStatus[status])
+            if status != 1:
+                file_id = str(int(np.random.rand() * 10000))
+                print("Model could not solved, written to " + file_id + "_tmp.lp")
+                my_lp_problem.writeLP(file_id + "_tmp.lp")
+                print("Solving via command line, results file: " + file_id + "_results.ilp")
+                os.system(
+                    "gurobi_cl ResultFile="
+                    + file_id
+                    + "_results.ilp "
+                    + file_id
+                    + "_tmp.lp"
+                )
+
+
 
 
 
