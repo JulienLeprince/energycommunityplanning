@@ -2,6 +2,8 @@ import pulp
 import pandas as pd
 import numpy as np
 import time
+import os
+from datetime import date
 
 # Loading parameters
 from parameters import *
@@ -11,10 +13,16 @@ from RC_models_15mins import *
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
+folder = 'poc_distributedstochastic_' + str(date.today()) + '/'
 path_in = '../data/in/'
-path_out = '../data/out/'
+path_out = '../data/out/' + folder
 path_src = ''
 version = 'proofofconcept_5buildings'
+
+# Create folder
+if not os.path.exists(path_out):
+    os.makedirs(path_out)
+
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'

@@ -8,11 +8,11 @@ from datetime import date
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
-folder = 'sensitivity_' + str(date.today()) + '/'
+folder = 'test_sensitivity_' + str(date.today()) + '/'
 path_in = '../data/in/'
 path_out = '../data/out/' + folder
 path_src = ''
-version = 'fullrun'
+version = 'allbuildings_1case'
 
 # Create folder
 if not os.path.exists(path_out):
@@ -34,8 +34,9 @@ df_RC.drop(uuids_upsamplingtolarge, inplace=True)
 
 # Stochastic scenario definition
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
-scenario_nb = probabilities.shape[0]
+#scenario_nb = probabilities.shape[0]
 scenarios = 1  # the problem is deterministic
+scenario_nb = 1  # 1 case study only
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -66,7 +67,6 @@ for s in range(scenario_nb):
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
 buildings = [value for value in buildings if value in df_RC.index]
-#buildings = buildings[0:36]
 
 
 # Sensitivity analysis setups
@@ -75,6 +75,9 @@ SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scena
 s_occ_and_climate = 5  #6
 s_occ_and_eco = 5  #6
 s_climate_and_eco = 9  #8
+
+
+sa_setups = ['userbehavior']
 
 for sa_setup in sa_setups:
         # Sensitivity analysis scenario loop
@@ -436,7 +439,7 @@ for sa_setup in sa_setups:
                 df_obj_res.loc[s, 'p_com_hyd'] = pulp.value(p_com_hyd[s])
                 df_obj_res.loc[s, 'p_com_pv'] = pulp.value(p_com_pv[s])
 
-            file = path_out + 'SA_' + version + '_blgs' + str(len(buildings)) + '_setup_' + sa_setup + str(sa)
+            file = path_out + 'SA_' + version + '_blgs' + str(len(buildings)) + '_setup_' + sa_setup + '_' + str(sa)
 
             # Write
             for s in range(scenarios):

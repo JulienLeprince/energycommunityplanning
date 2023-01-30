@@ -3,12 +3,20 @@ import pandas as pd
 import numpy as np
 import time
 from multiprocessing import Pool, cpu_count, Process
+import os
+from datetime import date
 
 # Path
+folder = 'sensitivity_' + str(date.today()) + '/'
 path_in = '../data/in/'
-path_out = '../data/out/'
+path_out = '../data/out/' + folder
 path_src = ''
 version = 'parallel_test'
+
+# Create folder
+if not os.path.exists(path_out):
+    os.makedirs(path_out)
+
 
 # Loading parameters
 from parameters import *

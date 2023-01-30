@@ -2,15 +2,23 @@ import pulp
 import pandas as pd
 import numpy as np
 import time
+import os
+from datetime import date
 
 # Path definition
 # path_in = r'C:/energycommunityplanning/data/in/'
 # path_out = r'C:/energycommunityplanning/data/out/'
 # path_src = r'C:/energycommunityplanning/src/'
+folder = 'poc_centralizedstochastic_' + str(date.today()) + '/'
 path_in = '../data/in/'
-path_out = '../data/out/'
+path_out = '../data/out/' + folder
 path_src = ''
 version = 'proofofconcept_5buildings'
+
+# Create folder
+if not os.path.exists(path_out):
+    os.makedirs(path_out)
+
 
 # Loading parameters
 from parameters import *
