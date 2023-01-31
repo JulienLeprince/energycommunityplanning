@@ -5,6 +5,11 @@ import time
 import os
 from datetime import date
 
+# Loading parameters
+from parameters import *
+# Loading RC models
+from RC_models_15mins import *
+
 # Path definition
 # path_in = r'C:/energycommunityplanning/data/in/'
 # path_out = r'C:/energycommunityplanning/data/out/'
@@ -19,11 +24,6 @@ version = 'proofofconcept_5buildings'
 if not os.path.exists(path_out):
     os.makedirs(path_out)
 
-
-# Loading parameters
-from parameters import *
-# Loading RC models
-from RC_models_15mins import *
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
@@ -118,6 +118,8 @@ i_blg_tes = pulp.LpVariable.dicts('var_i_blg_tes', (range(scenarios), buildings)
 i_blg_bol = pulp.LpVariable.dicts('var_i_blg_bol', (range(scenarios), buildings), lowBound=0, cat='Binary')
 i_blg_stc = pulp.LpVariable.dicts('var_i_blg_stc', (range(scenarios), buildings), lowBound=0, cat='Binary')
 i_blg_pv = pulp.LpVariable.dicts('var_i_blg_pv', (range(scenarios), buildings), lowBound=0, cat='Binary')
+slk_C_hp_max = pulp.LpVariable.dicts('var_slk_C_hp_max', (range(scenarios), buildings), lowBound=0, cat='Continous')
+slk_C_bol_max = pulp.LpVariable.dicts('var_slk_C_bol_max', (range(scenarios), buildings), lowBound=0, cat='Continous')
 # # Other
 # i_blg_bat_ch = pulp.LpVariable.dicts('var_i_blg_bat_ch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
 # i_blg_bat_dch = pulp.LpVariable.dicts('var_i_blg_bat_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
@@ -205,10 +207,10 @@ for s in range(scenarios):
             # my_lp_problem += Q_tes_dch[s][b][t] <= i_blg_tes_dch[s][b][t] * C_blg_tes_max
             # Heat pump
             my_lp_problem += Q_hp[s][b][t] == E_blg_hp[s][b][t] * dfb[s][b]['COP_hp'].iloc[t]
-            my_lp_problem += Q_hp[s][b][t] <= C_blg_hp[s][b]
+            my_lp_problem += Q_hp[s][b][t] <= C_blg_hp[s][b] + slk_C_hp_max[s][b]
             # Boiler
             my_lp_problem += Q_bol[s][b][t] == V_blg_gas[s][b][t] * eff_blg_bol
-            my_lp_problem += Q_bol[s][b][t] <= C_blg_bol[s][b]
+            my_lp_problem += Q_bol[s][b][t] <= C_blg_bol[s][b] + slk_C_bol_max[s][b]
             # Photovoltaics
             my_lp_problem += E_blg_pv[s][b][t] == A_blg_pv[s][b] * dfw[s]['Q_sol'].iloc[t] * eff_blg_pv
             # Solar thermal collector
@@ -318,7 +320,8 @@ for s in range(scenarios):
                      + p_com_bat[s] + p_com_hyd[s] + p_com_pv[s]
     my_lp_problem += O_slk[s] == pulp.lpSum(slk_mv_out[s][t] + slk_mv_in[s][t] for t in range(H))* p_slk \
                                     + pulp.lpSum(slk_blg_in[s][b][t] + slk_blg_out[s][b][t] for b in buildings for t in range(H)) * p_slk \
-                                    + pulp.lpSum(O_slk_blg[s][b][t] for b in buildings for t in range(H))
+                                    + pulp.lpSum(O_slk_blg[s][b][t] for b in buildings for t in range(H)) \
+                                    + pulp.lpSum(slk_C_hp_max[s][b] + slk_C_bol_max[s][b] for b in buildings) * p_C_slk
     my_lp_problem += O_tot[s] == O_opr[s] + O_inv[s] + O_co2[s] + O_slk[s]
 
 # Non anticipativity constraint
@@ -369,7 +372,8 @@ for s in range(scenarios):
                                                    'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas',
                                                    'slk_blg_in', 'slk_blg_out'])
     df_blg_res[s] = pd.DataFrame(columns=['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol',
-                                          'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol'])
+                                          'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol',
+                                          'slk_C_hp_max', 'slk_C_bol_max'])
     df_com_t_res[s] = pd.DataFrame(columns=['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch',
                                             'E_com_bat_dch', 'E_com_hyd', 'E_com_hyd_ch', 'E_com_hyd_dch',
                                             'slk_mv_out', 'slk_mv_in'])
@@ -413,6 +417,8 @@ for s in range(scenarios):
         df_blg_res[s].loc[b, 'i_blg_stc'] = pulp.value(i_blg_stc[s][b])
         df_blg_res[s].loc[b, 'i_blg_pv'] = pulp.value(i_blg_pv[s][b])
         df_blg_res[s].loc[b, 'i_blg_bol'] = pulp.value(i_blg_bol[s][b])
+        df_blg_res[s].loc[b, 'slk_C_hp_max'] = pulp.value(slk_C_hp_max[s][b])
+        df_blg_res[s].loc[b, 'slk_C_bol_max'] = pulp.value(slk_C_bol_max[s][b])
         df_obj_blg_res[s].loc[b, 'p_blg_bat'] = pulp.value(p_blg_bat[s][b])
         df_obj_blg_res[s].loc[b, 'p_blg_tes'] = pulp.value(p_blg_tes[s][b])
         df_obj_blg_res[s].loc[b, 'p_blg_hp'] = pulp.value(p_blg_hp[s][b])
@@ -422,9 +428,9 @@ for s in range(scenarios):
     for t in range(H):
         df_com_t_res[s].loc[t, 'E_hv_in'] = pulp.value(E_hv_in[s][t])
         df_com_t_res[s].loc[t, 'E_mv_out'] = pulp.value(E_mv_out[s][t])
+        df_com_t_res[s].loc[t, 'E_mv_in'] = pulp.value(E_mv_in[s][t])
         df_com_t_res[s].loc[t, 'slk_mv_in'] = pulp.value(slk_mv_in[s][t])
         df_com_t_res[s].loc[t, 'slk_mv_out'] = pulp.value(slk_mv_out[s][t])
-        df_com_t_res[s].loc[t, 'E_mv_in'] = pulp.value(E_mv_in[s][t])
         df_com_t_res[s].loc[t, 'E_com_pv'] = pulp.value(E_com_pv[s][t])
         df_com_t_res[s].loc[t, 'E_com_bat'] = pulp.value(E_com_bat[s][t])
         df_com_t_res[s].loc[t, 'E_com_bat_ch'] = pulp.value(E_com_bat_ch[s][t])
