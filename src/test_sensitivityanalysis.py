@@ -66,7 +66,7 @@ for s in range(scenario_nb):
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
 buildings = [value for value in buildings if value in df_RC.index]
-
+#buildings = buildings[0:40]
 
 # Sensitivity analysis setups
 sa_setups = ['userbehavior'] # 1 case study only
