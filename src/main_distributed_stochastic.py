@@ -268,8 +268,8 @@ for i in iterations:
             my_lp_problem += A_blg_pv[s] + A_blg_stc[s] <= A_blg_roof_max
             # Initial conditions
             my_lp_problem += T_blg[s][0] == dfb[s][b]['T_blg_set'].iloc[0]
-            my_lp_problem += E_blg_bat[s][0] == E_blg_bat[s][H]
-            my_lp_problem += Q_tes[s][0] == Q_tes[s][H]
+            my_lp_problem += E_blg_bat[s][0] <= E_blg_bat[s][H]
+            my_lp_problem += Q_tes[s][0] <= Q_tes[s][H]
             for t in range(H):
                 # Grid topology - energy balance - distributed problem linking constraint
                 my_lp_problem += sum(df_blg_t_res[s][bi].loc[t, 'E_blg_out'] for bi in buildings if bi != b) \
@@ -310,8 +310,8 @@ for i in iterations:
                 # Photovoltaics
                 my_lp_problem += E_com_pv[s][t] == A_com_pv[s] * dfw[s]['Q_sol'].iloc[t] * eff_com_pv
             # Initial conditions
-            my_lp_problem += E_com_bat[s][0] == E_com_bat[s][H]
-            my_lp_problem += E_com_hyd[s][0] == E_com_hyd[s][H]
+            my_lp_problem += E_com_bat[s][0] <= E_com_bat[s][H]
+            my_lp_problem += E_com_hyd[s][0] <= E_com_hyd[s][H]
             # Sizing
             my_lp_problem += C_com_bat[s] <= C_com_bat_max * i_com_bat[s]
             my_lp_problem += C_com_bat[s] >= C_com_bat_min * i_com_bat[s]
