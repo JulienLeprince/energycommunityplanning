@@ -5,6 +5,11 @@ import time
 import os
 from datetime import date
 
+# Loading parameters
+from parameters import *
+# Loading RC models
+from RC_models_15mins import *
+
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
@@ -18,11 +23,6 @@ version = 'fullrun_MondayAfternoon'
 if not os.path.exists(path_out):
     os.makedirs(path_out)
 
-
-# Loading parameters
-from parameters import *
-# Loading RC models
-from RC_models_15mins import *
 
 # RC building models
 file_RCmodels = path_in+'all_greybox_fits.csv'
@@ -57,7 +57,7 @@ for s in range(scenario_nb):
         bi += 2
 
     p_elec[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[3])
-    p_elec[s] =p_elec[s]['Day-ahead Price [EUR/kWh]']
+    p_elec[s] = p_elec[s]['Day-ahead Price [EUR/kWh]']
     p_gas[s] = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[4])
     p_gas[s] = p_gas[s]['gas_price [EUR/kWh]']
     p_elec[s] = p_elec[s].round(decimals=4)
@@ -137,11 +137,13 @@ for sa_setup in sa_setups:
             i_blg_bol = pulp.LpVariable.dicts('var_i_blg_bol', (range(scenarios), buildings), lowBound=0, cat='Binary')
             i_blg_stc = pulp.LpVariable.dicts('var_i_blg_stc', (range(scenarios), buildings), lowBound=0, cat='Binary')
             i_blg_pv = pulp.LpVariable.dicts('var_i_blg_pv', (range(scenarios), buildings), lowBound=0, cat='Binary')
-            # Other
-            i_blg_bat_ch = pulp.LpVariable.dicts('var_i_blg_bat_ch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
-            i_blg_bat_dch = pulp.LpVariable.dicts('var_i_blg_bat_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
-            i_blg_tes_ch = pulp.LpVariable.dicts('var_i_blg_tes_ch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
-            i_blg_tes_dch = pulp.LpVariable.dicts('var_i_blg_tes_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
+            slk_C_hp_max = pulp.LpVariable.dicts('var_slk_C_hp_max', (range(scenarios), buildings), lowBound=0, cat='Continous')
+            slk_C_bol_max = pulp.LpVariable.dicts('var_slk_C_bol_max', (range(scenarios), buildings), lowBound=0, cat='Continous')
+            # # Other
+            # i_blg_bat_ch = pulp.LpVariable.dicts('var_i_blg_bat_ch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
+            # i_blg_bat_dch = pulp.LpVariable.dicts('var_i_blg_bat_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
+            # i_blg_tes_ch = pulp.LpVariable.dicts('var_i_blg_tes_ch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
+            # i_blg_tes_dch = pulp.LpVariable.dicts('var_i_blg_tes_dch', (range(scenarios), buildings, range(H + 1)), lowBound=0, cat='Binary')
 
             # Variables community
             # Continous
@@ -166,11 +168,11 @@ for sa_setup in sa_setups:
             i_com_bat = pulp.LpVariable.dicts('var_i_com_bat', range(scenarios), lowBound=0, cat='Binary')
             i_com_hyd = pulp.LpVariable.dicts('var_i_com_hyd', range(scenarios), lowBound=0, cat='Binary')
             i_com_pv = pulp.LpVariable.dicts('var_i_com_pv', range(scenarios), lowBound=0, cat='Binary')
-            # Other
-            i_com_bat_ch = pulp.LpVariable.dicts('var_i_com_bat_ch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
-            i_com_bat_dch = pulp.LpVariable.dicts('var_i_com_bat_dch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
-            i_com_hyd_ch = pulp.LpVariable.dicts('var_i_com_hyd_ch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
-            i_com_hyd_dch = pulp.LpVariable.dicts('var_i_com_hyd_dch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
+            # # Other
+            # i_com_bat_ch = pulp.LpVariable.dicts('var_i_com_bat_ch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
+            # i_com_bat_dch = pulp.LpVariable.dicts('var_i_com_bat_dch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
+            # i_com_hyd_ch = pulp.LpVariable.dicts('var_i_com_hyd_ch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
+            # i_com_hyd_dch = pulp.LpVariable.dicts('var_i_com_hyd_dch', (range(scenarios), range(H)), lowBound=0, cat='Binary')
 
             # Variables Objective function
             O_tot = pulp.LpVariable.dicts('var_O_tot', range(scenarios), lowBound=0, cat='Continous')
@@ -209,9 +211,9 @@ for sa_setup in sa_setups:
                         my_lp_problem += E_blg_bat[s][b][t] >= C_blg_bat_min * i_blg_bat[s][b]
                         my_lp_problem += E_blg_bat_ch[s][b][t] <= C_blg_bat[s][b] * power_eff_blg_bat_ch
                         my_lp_problem += E_blg_bat_dch[s][b][t] <= C_blg_bat[s][b] * power_eff_blg_bat_dch
-                        my_lp_problem += i_blg_bat_ch[s][b][t] + i_blg_bat_dch[s][b][t] <= 1
-                        my_lp_problem += E_blg_bat_ch[s][b][t] <= i_blg_bat_ch[s][b][t] * C_blg_bat_max
-                        my_lp_problem += E_blg_bat_dch[s][b][t] <= i_blg_bat_dch[s][b][t] * C_blg_bat_max
+                        # my_lp_problem += i_blg_bat_ch[s][b][t] + i_blg_bat_dch[s][b][t] <= 1
+                        # my_lp_problem += E_blg_bat_ch[s][b][t] <= i_blg_bat_ch[s][b][t] * C_blg_bat_max
+                        # my_lp_problem += E_blg_bat_dch[s][b][t] <= i_blg_bat_dch[s][b][t] * C_blg_bat_max
                         # Thermal energy storage
                         my_lp_problem += Q_tes[s][b][t+1] == Q_tes[s][b][t]*decay_blg_tes \
                                                         + Q_tes_ch[s][b][t]*eff_blg_tes_ch \
@@ -219,15 +221,15 @@ for sa_setup in sa_setups:
                         my_lp_problem += Q_tes[s][b][t] <= C_blg_tes[s][b]
                         my_lp_problem += Q_tes_ch[s][b][t] <= C_blg_tes[s][b] * power_eff_blg_tes_ch
                         my_lp_problem += Q_tes_dch[s][b][t] <= C_blg_tes[s][b] * power_eff_blg_tes_dch
-                        my_lp_problem += i_blg_tes_ch[s][b][t] + i_blg_tes_dch[s][b][t] <= 1
-                        my_lp_problem += Q_tes_ch[s][b][t] <= i_blg_tes_ch[s][b][t] * C_blg_tes_max
-                        my_lp_problem += Q_tes_dch[s][b][t] <= i_blg_tes_dch[s][b][t] * C_blg_tes_max
+                        # my_lp_problem += i_blg_tes_ch[s][b][t] + i_blg_tes_dch[s][b][t] <= 1
+                        # my_lp_problem += Q_tes_ch[s][b][t] <= i_blg_tes_ch[s][b][t] * C_blg_tes_max
+                        # my_lp_problem += Q_tes_dch[s][b][t] <= i_blg_tes_dch[s][b][t] * C_blg_tes_max
                         # Heat pump
                         my_lp_problem += Q_hp[s][b][t] == E_blg_hp[s][b][t] * dfb[s][b]['COP_hp'].iloc[t]
-                        my_lp_problem += Q_hp[s][b][t] <= C_blg_hp[s][b]
+                        my_lp_problem += Q_hp[s][b][t] <= C_blg_hp[s][b] + slk_C_hp_max[s][b]
                         # Boiler
                         my_lp_problem += Q_bol[s][b][t] == V_blg_gas[s][b][t] * eff_blg_bol
-                        my_lp_problem += Q_bol[s][b][t] <= C_blg_bol[s][b]
+                        my_lp_problem += Q_bol[s][b][t] <= C_blg_bol[s][b] + slk_C_bol_max[s][b]
                         # Photovoltaics
                         my_lp_problem += E_blg_pv[s][b][t] == A_blg_pv[s][b]*dfw[s_clim]['Q_sol'].iloc[t]*eff_blg_pv
                         # Solar thermal collector
@@ -256,8 +258,8 @@ for sa_setup in sa_setups:
                     my_lp_problem += A_blg_pv[s][b] + A_blg_stc[s][b] <= A_blg_roof_max
                     # Initial conditions
                     my_lp_problem += T_blg[s][b][0] == dfb[s_occ][b]['T_blg_set'].iloc[0]
-                    my_lp_problem += E_blg_bat[s][b][0] == E_blg_bat[s][b][H]
-                    my_lp_problem += Q_tes[s][b][0] == Q_tes[s][b][H]
+                    my_lp_problem += E_blg_bat[s][b][0] <= E_blg_bat[s][b][H]
+                    my_lp_problem += Q_tes[s][b][0] <= Q_tes[s][b][H]
                 for t in range(H):
                     # Grid topology - energy balance
                     my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_out[s][t] \
@@ -277,9 +279,9 @@ for sa_setup in sa_setups:
                     my_lp_problem += E_com_bat[s][t] >= C_com_bat_min * i_com_bat[s]
                     my_lp_problem += E_com_bat_ch[s][t] <= C_com_bat[s] * power_eff_com_bat_ch
                     my_lp_problem += E_com_bat_dch[s][t] <= C_com_bat[s] * power_eff_com_bat_dch
-                    my_lp_problem += i_com_bat_ch[s][t] + i_com_bat_dch[s][t] <= 1
-                    my_lp_problem += E_com_bat_ch[s][t] <= i_com_bat_ch[s][t] * C_com_bat_max
-                    my_lp_problem += E_com_bat_dch[s][t] <= i_com_bat_dch[s][t] * C_com_bat_max
+                    # my_lp_problem += i_com_bat_ch[s][t] + i_com_bat_dch[s][t] <= 1
+                    # my_lp_problem += E_com_bat_ch[s][t] <= i_com_bat_ch[s][t] * C_com_bat_max
+                    # my_lp_problem += E_com_bat_dch[s][t] <= i_com_bat_dch[s][t] * C_com_bat_max
                     # Hydrogen storage
                     my_lp_problem += E_com_hyd[s][t+1] == E_com_hyd[s][t] * decay_com_hyd \
                                                          + E_com_hyd_ch[s][t] * eff_com_hyd_ch \
@@ -288,15 +290,15 @@ for sa_setup in sa_setups:
                     my_lp_problem += E_com_hyd[s][t] >= C_com_hyd_min * i_com_hyd[s]
                     my_lp_problem += E_com_hyd_ch[s][t] <= C_com_elec[s]
                     my_lp_problem += E_com_hyd_dch[s][t] <= C_com_fc[s]
-                    my_lp_problem += i_com_hyd_ch[s][t] + i_com_hyd_dch[s][t] <= 1
-                    my_lp_problem += E_com_hyd_ch[s][t] <= i_com_hyd_ch[s][t] * C_com_elec_max
-                    my_lp_problem += E_com_hyd_dch[s][t] <= i_com_hyd_dch[s][t] * C_com_fc_max
-                    my_lp_problem += E_com_hyd_dch[s][t] >= i_com_hyd_dch[s][t] * C_com_fc_min
+                    # my_lp_problem += i_com_hyd_ch[s][t] + i_com_hyd_dch[s][t] <= 1
+                    # my_lp_problem += E_com_hyd_ch[s][t] <= i_com_hyd_ch[s][t] * C_com_elec_max
+                    # my_lp_problem += E_com_hyd_dch[s][t] <= i_com_hyd_dch[s][t] * C_com_fc_max
+                    # my_lp_problem += E_com_hyd_dch[s][t] >= i_com_hyd_dch[s][t] * C_com_fc_min
                     # Photovoltaics
                     my_lp_problem += E_com_pv[s][t] == A_com_pv[s] * dfw[s_clim]['Q_sol'].iloc[t] * eff_com_pv
                 # Initial conditions
-                my_lp_problem += E_com_bat[s][0] == E_com_bat[s][H]
-                my_lp_problem += E_com_hyd[s][0] == E_com_hyd[s][H]
+                my_lp_problem += E_com_bat[s][0] <= E_com_bat[s][H]
+                my_lp_problem += E_com_hyd[s][0] <= E_com_hyd[s][H]
                 # Sizing
                 my_lp_problem += C_com_bat[s] <= C_com_bat_max*i_com_bat[s]
                 my_lp_problem += C_com_bat[s] >= C_com_bat_min*i_com_bat[s]
@@ -397,7 +399,8 @@ for sa_setup in sa_setups:
                                                                'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out', 'E_blg_load', 'V_blg_gas',
                                                                'slk_blg_in', 'slk_blg_out'])
                 df_blg_res[s] = pd.DataFrame(columns=['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol',
-                                                      'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol'])
+                                                      'i_blg_hp', 'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol',
+                                                      'slk_C_hp_max', 'slk_C_bol_max'])
                 df_com_t_res[s] = pd.DataFrame(columns=['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch',
                                                         'E_com_bat_dch', 'E_com_hyd', 'E_com_hyd_ch', 'E_com_hyd_dch',
                                                         'slk_mv_out', 'slk_mv_in'])
@@ -441,6 +444,8 @@ for sa_setup in sa_setups:
                     df_blg_res[s].loc[b, 'i_blg_stc'] = pulp.value(i_blg_stc[s][b])
                     df_blg_res[s].loc[b, 'i_blg_pv'] = pulp.value(i_blg_pv[s][b])
                     df_blg_res[s].loc[b, 'i_blg_bol'] = pulp.value(i_blg_bol[s][b])
+                    df_blg_res[s].loc[b, 'slk_C_hp_max'] = pulp.value(slk_C_hp_max[s][b])
+                    df_blg_res[s].loc[b, 'slk_C_bol_max'] = pulp.value(slk_C_bol_max[s][b])
                     df_obj_blg_res[s].loc[b, 'p_blg_bat'] = pulp.value(p_blg_bat[s][b])
                     df_obj_blg_res[s].loc[b, 'p_blg_tes'] = pulp.value(p_blg_tes[s][b])
                     df_obj_blg_res[s].loc[b, 'p_blg_hp'] = pulp.value(p_blg_hp[s][b])

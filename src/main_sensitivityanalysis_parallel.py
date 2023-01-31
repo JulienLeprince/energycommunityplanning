@@ -245,8 +245,8 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
             my_lp_problem += A_blg_pv[s][b] + A_blg_stc[s][b] <= A_blg_roof_max
             # Initial conditions
             my_lp_problem += T_blg[s][b][0] == dfb[s_occ][b]['T_blg_set'].iloc[0]
-            my_lp_problem += E_blg_bat[s][b][0] == E_blg_bat[s][b][H]
-            my_lp_problem += Q_tes[s][b][0] == Q_tes[s][b][H]
+            my_lp_problem += E_blg_bat[s][b][0] <= E_blg_bat[s][b][H]
+            my_lp_problem += Q_tes[s][b][0] <= Q_tes[s][b][H]
         for t in range(H):
             # Grid topology - energy balance
             my_lp_problem += sum(E_blg_out[s][bi][t] for bi in buildings) + E_mv_out[s][t] \
@@ -281,8 +281,8 @@ def parallel_pulp_sensitivity_analysis(tuple_in,
             # Photovoltaics
             my_lp_problem += E_com_pv[s][t] == A_com_pv[s] * dfw[s_clim]['Q_sol'].iloc[t] * eff_com_pv
         # Initial conditions
-        my_lp_problem += E_com_bat[s][0] == E_com_bat[s][H]
-        my_lp_problem += E_com_hyd[s][0] == E_com_hyd[s][H]
+        my_lp_problem += E_com_bat[s][0] <= E_com_bat[s][H]
+        my_lp_problem += E_com_hyd[s][0] <= E_com_hyd[s][H]
         # Sizing
         my_lp_problem += C_com_bat[s] <= C_com_bat_max * i_com_bat[s]
         my_lp_problem += C_com_bat[s] >= C_com_bat_min * i_com_bat[s]
