@@ -18,7 +18,7 @@ folder = 'poc_centralizedstochastic_' + str(date.today()) + '/'
 path_in = '../data/in/'
 path_out = '../data/out/' + folder
 path_src = ''
-version = 'proofofconcept_5buildings'
+version = 'proofofconcept_5buildings_5scenarios'
 
 # Create folder
 if not os.path.exists(path_out):
@@ -38,7 +38,7 @@ probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenarios = probabilities.shape[0]
 
 # TODO - Reducing size of problem here to 1 (deterministic)
-# scenarios = 1
+scenarios = 5
 
 # Reading input data
 dfw, dfb = dict(), dict()
