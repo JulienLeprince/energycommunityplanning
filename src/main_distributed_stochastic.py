@@ -49,7 +49,7 @@ for s in range(scenarios):
 
     dfb[s] = dict()
     bi = 0
-    for b in range(72):
+    for b in range(83):
         data = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[5+bi, 6+bi])
         uuid = data.columns[0].split('_')[0]
         dfb[s][uuid] = data
@@ -135,8 +135,8 @@ for i in iterations:
         E_blg_bat_dch = pulp.LpVariable.dicts('var_E_blg_bat_dch', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
         E_blg_hp = pulp.LpVariable.dicts('var_E_blg_hp', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
         E_blg_pv = pulp.LpVariable.dicts('var_E_blg_pv', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
-        E_blg_in = pulp.LpVariable.dicts('var_E_blg_in', (range(scenarios), range(H + 1)), lowBound=0, upBound=E_lv_max, cat='Continous')
-        E_blg_out = pulp.LpVariable.dicts('var_E_blg_out', (range(scenarios), range(H + 1)), lowBound=0, upBound=E_lv_max, cat='Continous')
+        E_blg_in = pulp.LpVariable.dicts('var_E_blg_in', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
+        E_blg_out = pulp.LpVariable.dicts('var_E_blg_out', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
         slk_blg_in = pulp.LpVariable.dicts('var_slk_blg_in', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
         slk_blg_out = pulp.LpVariable.dicts('var_slk_blg_out', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
         V_blg_gas = pulp.LpVariable.dicts('var_V_blg_gas', (range(scenarios), range(H + 1)), lowBound=0, cat='Continous')
@@ -210,8 +210,8 @@ for i in iterations:
         for s in range(scenarios):
 
             # Building block
-            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], O_slk_blg[s][b], H, b, s)
-            # my_lp_problem = rc.RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], H, b, s)
+            my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s], T_blg[s], Q_sp[s], O_slk_blg[s],
+                                    H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
 
             for t in range(H):
                 # my_lp_problem += T_blg[s][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary

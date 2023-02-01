@@ -47,7 +47,7 @@ for s in range(scenario_nb):
 
     dfb[s] = dict()
     bi = 0
-    for b in range(72):
+    for b in range(83):
         data = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[5+bi, 6+bi])
         uuid = data.columns[0].split('_')[0]
         dfb[s][uuid] = data
@@ -147,7 +147,7 @@ for sa_setup in sa_setups:
 
             # Variables community
             # Continous
-            E_hv_in = pulp.LpVariable.dicts('var_E_net', (range(scenarios), range(H)), lowBound=0, upBound=E_hv_max, cat='Continuous')
+            E_hv_in = pulp.LpVariable.dicts('var_E_net', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
             E_mv_out = pulp.LpVariable.dicts('var_E_mv_out', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
             E_mv_in = pulp.LpVariable.dicts('var_E_mv_in', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
             slk_mv_out = pulp.LpVariable.dicts('var_slk_mv_out', (range(scenarios), range(H)), lowBound=0, cat='Continuous')
@@ -198,7 +198,7 @@ for sa_setup in sa_setups:
                 for b in buildings:
                     # Building system
                     my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s][b],
-                                            Q_sp[s][b], O_slk_blg[s][b], H, b, s, T_set=dfb[s][b]['T_blg_set'].iloc[0])
+                                            Q_sp[s][b], O_slk_blg[s][b], H, b, s, T_set=dfb[s_occ][b]['T_blg_set'].iloc[0])
 
                     for t in range(H):
                         #my_lp_problem += T_blg[s][b][t+1] <= dfb[s][b]['T_blg_set'].iloc[t+1] + T_blg_buffer  # cooling boundary
@@ -382,10 +382,6 @@ for sa_setup in sa_setups:
                     + file_id
                     + "_tmp.lp"
                 )
-
-
-
-
 
             ########################################################################################################################
             # Results extraction

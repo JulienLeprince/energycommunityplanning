@@ -46,7 +46,7 @@ for s in range(scenario_nb):
 
     dfb[s] = dict()
     bi = 0
-    for b in range(72):
+    for b in range(83):
         data = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[5+bi, 6+bi])
         uuid = data.columns[0].split('_')[0]
         dfb[s][uuid] = data
