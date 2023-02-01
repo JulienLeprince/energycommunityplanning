@@ -458,7 +458,7 @@ for i in iterations:
 
         # Calculating total objective function
         O_buildings = []
-        for s in scenarios:
+        for s in range(scenarios):
             O_buildings_per_scenario = []
             for bi in buildings:
                 if bi != b:
