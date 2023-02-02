@@ -12,10 +12,10 @@ from RC_models_15mins import *
 
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
-# path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
 folder = 'test_sensitivity_distributed_' + str(date.today()) + '/'
 path_in = '../data/in/'
 path_out = '../data/out/' + folder
+# path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/' + folder
 path_src = ''
 version = 'crash_test'
 
@@ -100,7 +100,7 @@ for sa_setup in sa_setups:
                 dfb[s][b]['COP_hp'] = pi_hp_1 * np.exp(pi_hp_2 * (dfb[s_occ][b]['T_blg_set'] - dfw[s_clim]['T_a'])) \
                                    + pi_hp_3 * np.exp(pi_hp_4 * (dfb[s_occ][b]['T_blg_set'] - dfw[s_clim]['T_a']))
 
-        iterations = range(15)
+        iterations = range(5)
         # Result objects declaration
         df_objective_function = pd.DataFrame(columns=buildings, index=iterations)
         df_blg_t_res, df_com_t_res, df_com_res, df_obj_blg_res, df_obj_res = dict(), dict(), dict(), dict(), dict()
@@ -226,7 +226,7 @@ for sa_setup in sa_setups:
                 for s in range(scenarios):
 
                     # Building block
-                    my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s][b],
+                    my_lp_problem = RCmodel(my_lp_problem, df_RC.loc[b, 'model_name'], dfw[s_clim], T_blg[s],
                                             Q_sp[s], O_slk_blg[s], H, b, s, T_set=dfb[s_occ][b]['T_blg_set'].iloc[0])
 
                     for t in range(H):
@@ -395,7 +395,7 @@ for sa_setup in sa_setups:
                 #  Optimization
                 print('Problem constructed!')
                 start_time = time.time()
-                status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads",2), ("NodefileStart", 200)]))
+                status = my_lp_problem.solve(pulp.apis.GUROBI_CMD(options=[("threads", 2), ("NodefileStart", 200)]))
                 end_time = time.time() - start_time
                 print(str(pulp.LpStatus[status]) + ' computing time: ' + str(end_time))
                 print(pulp.LpStatus[status])
@@ -490,10 +490,10 @@ for sa_setup in sa_setups:
                     O_buildings_per_scenario = []
                     for bi in buildings:
                         if bi != b:
-                            O_inv_blg = df_blg_res[s].loc[bi, 'p_blg_bat'] + df_blg_res[s].loc[bi, 'p_blg_tes'] + df_blg_res[s].loc[bi, 'p_blg_stc'] + df_blg_res[s].loc[bi, 'p_blg_pv'] \
-                                        + df_blg_res[s].loc[bi, 'p_blg_bol'] + df_blg_res[s].loc[bi, 'p_blg_hp']
-                            O_co2_blg = np.sum(df_blg_t_res[s][bi].loc[t, 'V_blg_gas']*p_co2 + df_blg_t_res[s][bi].loc[t, 'V_blg_gas'] * p_gas[s][t] for t in range(H))
-                            O_slk = np.sum(df_blg_t_res[s][bi].loc[t, 'slk_blg_out']*p_slk + df_blg_t_res[s][bi].loc[t, 'slk_blg_in']*p_slk + df_blg_t_res[s][bi].loc[t, 'O_slk_blg'] for t in range(H)) \
+                            O_inv_blg = df_obj_blg_res[s].loc[bi, 'p_blg_bat'] + df_obj_blg_res[s].loc[bi, 'p_blg_tes'] + df_obj_blg_res[s].loc[bi, 'p_blg_stc'] + df_obj_blg_res[s].loc[bi, 'p_blg_pv'] \
+                                        + df_obj_blg_res[s].loc[bi, 'p_blg_bol'] + df_obj_blg_res[s].loc[bi, 'p_blg_hp']
+                            O_co2_blg = np.sum(df_blg_t_res[s][bi]['V_blg_gas']*p_co2 + df_blg_t_res[s][bi]['V_blg_gas']*p_gas[s])
+                            O_slk = np.sum(df_blg_t_res[s][bi]['slk_blg_out']*p_slk + df_blg_t_res[s][bi]['slk_blg_in']*p_slk + df_blg_t_res[s][bi]['O_slk_blg']) \
                                     + (df_blg_res[s].loc[bi, 'slk_C_hp_max'] + df_blg_res[s].loc[bi, 'slk_C_bol_max']) * p_C_slk
                             O_buildings_per_scenario.append(O_inv_blg + O_co2_blg + O_slk)
                     expected_costs = np.sum(O_buildings_per_scenario)*probabilities.iloc[s]
