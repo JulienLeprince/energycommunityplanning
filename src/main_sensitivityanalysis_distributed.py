@@ -99,7 +99,7 @@ for sa_setup in sa_setups:
                 dfb[s][b]['COP_hp'] = pi_hp_1 * np.exp(pi_hp_2 * (dfb[s_occ][b]['T_blg_set'] - dfw[s_clim]['T_a'])) \
                                    + pi_hp_3 * np.exp(pi_hp_4 * (dfb[s_occ][b]['T_blg_set'] - dfw[s_clim]['T_a']))
 
-        iterations = range(15)
+        iterations = range(7)
         # Result objects declaration
         df_objective_function = pd.DataFrame(columns=buildings, index=iterations)
         df_blg_t_res, df_com_t_res, df_com_res, df_obj_blg_res, df_obj_res = dict(), dict(), dict(), dict(), dict()
