@@ -13,11 +13,12 @@ from RC_models_15mins import *
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
-folder = 'poc_distributedstochastic_' + str(date.today()) + '/'
+folder = 'full_distributedstochastic_' + str(date.today()) + '/'
 path_in = '../data/in/'
 path_out = '../data/out/' + folder
 path_src = ''
-version = 'proofofconcept_5buildings_5scenarios'
+#version = 'proofofconcept_5buildings_5scenarios'
+version = 'allbuildings_10scenarios'
 
 # Create folder
 if not os.path.exists(path_out):
@@ -37,7 +38,7 @@ probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenarios = probabilities.shape[0]
 
 # TODO - Reducing size of problem here
-scenarios = 5
+# scenarios = 5
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -71,7 +72,7 @@ buildings = [value for value in buildings if value in df_RC.index]
 
 
 # TODO -Reducing size of problem here
-buildings = buildings[0:5]
+# buildings = buildings[0:5]
 
 
 # Calculating heat pump COP

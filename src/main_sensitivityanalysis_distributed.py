@@ -17,7 +17,7 @@ folder = 'sensitivity_distributed_' + str(date.today()) + '/'
 path_in = '../data/in/'
 path_out = '../data/out/' + folder
 path_src = ''
-version = 'crash_run'
+version = 'full'
 
 # Create folder
 if not os.path.exists(path_out):
