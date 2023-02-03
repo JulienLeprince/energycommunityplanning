@@ -107,7 +107,7 @@ for sa_setup in sa_setups:
                       'COP_hp', 'E_blg_bat_ch', 'E_blg_bat_dch', 'E_blg_hp', 'E_blg_pv', 'E_blg_in', 'E_blg_out',
                       'E_blg_load', 'V_blg_gas', 'slk_blg_in', 'slk_blg_out']
         blg_cols = ['C_blg_hp', 'C_blg_bat', 'C_blg_tes', 'A_blg_stc', 'A_blg_pv', 'C_blg_bol', 'i_blg_hp',
-                    'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol', 'slk_C_hp_max', 'slk_C_bol_max']
+                    'i_blg_bat', 'i_blg_tes', 'i_blg_stc', 'i_blg_pv', 'i_blg_bol']
         com_t_cols = ['E_hv_in', 'E_mv_out', 'E_mv_in', 'E_com_pv', 'E_com_bat', 'E_com_bat_ch', 'E_com_bat_dch',
                       'E_com_hyd', 'E_com_hyd_ch', 'E_com_hyd_dch', 'slk_mv_out', 'slk_mv_in']
         obj_blg_cols = ['p_blg_bat', 'p_blg_tes', 'p_blg_hp', 'p_blg_bol', 'p_blg_pv', 'p_blg_stc']
@@ -168,8 +168,6 @@ for sa_setup in sa_setups:
                 i_blg_bol = pulp.LpVariable.dicts('var_i_blg_bol', (range(scenarios)), lowBound=0, cat='Binary')
                 i_blg_stc = pulp.LpVariable.dicts('var_i_blg_stc', (range(scenarios)), lowBound=0, cat='Binary')
                 i_blg_pv = pulp.LpVariable.dicts('var_i_blg_pv', (range(scenarios)), lowBound=0, cat='Binary')
-                slk_C_hp_max = pulp.LpVariable.dicts('var_slk_C_hp_max', (range(scenarios)), lowBound=0, cat='Continous')
-                slk_C_bol_max = pulp.LpVariable.dicts('var_slk_C_bol_max', (range(scenarios)), lowBound=0, cat='Continous')
                 # # Other
                 # i_blg_bat_ch = pulp.LpVariable.dicts('var_i_blg_bat_ch', (range(scenarios), range(H + 1)), lowBound=0, cat='Binary')
                 # i_blg_bat_dch = pulp.LpVariable.dicts('var_i_blg_bat_dch', (range(scenarios), range(H + 1)), lowBound=0, cat='Binary')
@@ -254,10 +252,10 @@ for sa_setup in sa_setups:
                         # my_lp_problem += Q_tes_dch[s][t] <= i_blg_tes_dch[s][t] * C_blg_tes_max
                         # Heat pump
                         my_lp_problem += Q_hp[s][t] == E_blg_hp[s][t] * dfb[s][b]['COP_hp'].iloc[t]
-                        my_lp_problem += Q_hp[s][t] <= C_blg_hp[s] + slk_C_hp_max[s]
+                        my_lp_problem += Q_hp[s][t] <= C_blg_hp[s]
                         # Boiler
                         my_lp_problem += Q_bol[s][t] == V_blg_gas[s][t] * eff_blg_bol
-                        my_lp_problem += Q_bol[s][t] <= C_blg_bol[s] + slk_C_bol_max[s]
+                        my_lp_problem += Q_bol[s][t] <= C_blg_bol[s]
                         # Photovoltaics
                         my_lp_problem += E_blg_pv[s][t] == A_blg_pv[s] * dfw[s_clim]['Q_sol'].iloc[t] * eff_blg_pv
                         # Solar thermal collector
@@ -367,8 +365,7 @@ for sa_setup in sa_setups:
                                      + p_blg_stc[s] + p_com_bat[s] + p_com_hyd[s] + p_com_pv[s]
                     my_lp_problem += O_slk[s] == pulp.lpSum(slk_mv_out[s][t] + slk_mv_in[s][t] for t in range(H)) * p_slk \
                                      + pulp.lpSum(slk_blg_in[s][t] + slk_blg_out[s][t] for t in range(H)) * p_slk \
-                                     + pulp.lpSum(O_slk_blg[s][t] for t in range(H)) \
-                                     + pulp.lpSum(slk_C_hp_max[s] + slk_C_bol_max[s]) * p_C_slk
+                                     + pulp.lpSum(O_slk_blg[s][t] for t in range(H))
                     my_lp_problem += O_tot[s] == O_opr[s] + O_inv[s] + O_co2[s] + O_slk[s]
 
                 # Non anticipativity constraint
@@ -452,8 +449,6 @@ for sa_setup in sa_setups:
                     df_obj_blg_res[s].loc[b, 'p_blg_bol'] = pulp.value(p_blg_bol[s])
                     df_obj_blg_res[s].loc[b, 'p_blg_pv'] = pulp.value(p_blg_pv[s])
                     df_obj_blg_res[s].loc[b, 'p_blg_stc'] = pulp.value(p_blg_stc[s])
-                    df_blg_res[s].loc[b, 'slk_C_hp_max'] = pulp.value(slk_C_hp_max[s])
-                    df_blg_res[s].loc[b, 'slk_C_bol_max'] = pulp.value(slk_C_bol_max[s])
                     for t in range(H):
                         df_com_t_res[s].loc[t, 'E_hv_in'] = pulp.value(E_hv_in[s][t])
                         df_com_t_res[s].loc[t, 'E_mv_out'] = pulp.value(E_mv_out[s][t])
