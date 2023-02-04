@@ -87,8 +87,8 @@ if arg_nb_of_buildings != 'all':
 # Sensitivity analysis setups
 sa_setups = ['userbehavior']  # 1 case study only
 if arg_nb_of_scenarios != 'all':
-    scenarios_nb = int(arg_nb_of_scenarios)
-SA_scenarios = [s for s in range(scenarios_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
+    scenario_nb = int(arg_nb_of_scenarios)
+SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
 if arg_timestep == '15mins':
     s_occ_and_climate = 5
     s_occ_and_eco = 5
