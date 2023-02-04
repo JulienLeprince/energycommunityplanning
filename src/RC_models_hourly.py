@@ -5,7 +5,7 @@ import math
 
 path_RCmodels = '../data/in/hourly/'
 # path_RCmodels = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
-file = 'hourly_greybox_fits.csv'
+file = 'all_greybox_fits.csv'
 df_RC = pd.read_csv(path_RCmodels+file, index_col='uuid')
 
 # RC models requiring either heating demands or upsampling too large for the problem
