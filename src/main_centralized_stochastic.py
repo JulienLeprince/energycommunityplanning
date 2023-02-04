@@ -24,7 +24,7 @@ elif arg_timestep == 'hourly':
 # path_in = r'C:/energycommunityplanning/data/in/'
 # path_out = r'C:/energycommunityplanning/data/out/'
 # path_src = r'C:/energycommunityplanning/src/'
-folder = arg_folder_name + str(date.today()) + '/'
+folder = arg_timestep + '_' + arg_folder_name + str(date.today()) + '/'
 if arg_timestep == '15mins':
     path_in = '../data/in/15mins/'
 if arg_timestep == 'hourly':

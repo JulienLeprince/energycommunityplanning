@@ -23,7 +23,7 @@ elif arg_timestep == 'hourly':
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/'
-folder = arg_folder_name + str(date.today()) + '/'
+folder = arg_timestep + '_' + arg_folder_name + str(date.today()) + '/'
 if arg_timestep == '15mins':
     path_in = '../data/in/15mins/'
 if arg_timestep == 'hourly':

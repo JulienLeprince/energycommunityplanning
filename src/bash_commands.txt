@@ -1,0 +1,14 @@
+Arguments when calling any script include:
+1. arg_timestep 	: '15mins' or 'hourly'
+2. arg_nb_of_buildings	: 'all' or int value		if int value, any large values are OK. E.g. 1000 will return the max number of buildings
+3. arg_nb_of_scenarios	: 'all' or int value		if int value, don't go above 10
+4. arg_folder_name	: name of the created folder for the run, typically 'full_distributedstochastic_', 'poc_distributedstochastic_' or 'full_sensitivity_distributed_'
+5. arg_file_name	: name of the files created for the run, typically 'crash_test', 'publication_run', <whatever_specifics>
+
+
+call examples:
+python main_distributed_stochastic.py 'hourly' 'all' 'all' 'full_distributedstochastic_' 'publication_run'
+python main_distributed_stochastic.py 'hourly' 5 5 'poc_distributedstochastic_' 'publication_run'
+python main_centralized_stochastic.py 'hourly' 5 5 'poc_centralizedstochastic_' 'publication_run'
+python main_sensitivityanalysis_distributed.py 'hourly' 'all' 'all' 'full_sensitivity_distributed_' 'publication_run'
+python test_sensitivityanalysis_distributed.py 'hourly' 5 5 'test_sensitivity_distributed_' 'crash_test'
