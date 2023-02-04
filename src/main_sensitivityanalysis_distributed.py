@@ -7,8 +7,8 @@ from datetime import date
 import sys
 
 arg_timestep = sys.argv[1]
-arg_nb_of_buildings = int(sys.argv[2])
-arg_nb_of_scenarios = int(sys.argv[3])  # not used here
+arg_nb_of_buildings = sys.argv[2]
+arg_nb_of_scenarios = sys.argv[3]  # not used here
 arg_folder_name = sys.argv[4]
 arg_file_name = sys.argv[5]
 
@@ -84,12 +84,14 @@ buildings = list(dfb[s].keys())
 buildings = [value for value in buildings if value in df_RC.index]
 # Number of considered buildings redefined here
 if arg_nb_of_buildings != 'all':
-    buildings = buildings[0:arg_nb_of_buildings]
+    buildings = buildings[0:int(arg_nb_of_buildings)]
 
 
 # Sensitivity analysis setups
 sa_setups = ['userbehavior', 'climate', 'economic']
-SA_scenarios = [s for s in range(arg_nb_of_scenarios)]  # we loop over scenario_nb scenarios for the sensitivity analysis
+if arg_nb_of_scenarios != 'all':
+    scenarios_nb = int(arg_nb_of_scenarios)
+SA_scenarios = [s for s in range(scenarios_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
 if arg_timestep == '15mins':
     s_occ_and_climate = 5
     s_occ_and_eco = 5
