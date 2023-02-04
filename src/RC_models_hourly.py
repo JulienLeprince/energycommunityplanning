@@ -3,8 +3,8 @@ import pandas as pd
 from random import gauss
 import math
 
-path_RCmodels = '../data/in/'
-path_RCmodels = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
+path_RCmodels = '../data/in/hourly/'
+# path_RCmodels = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
 file = 'hourly_greybox_fits.csv'
 df_RC = pd.read_csv(path_RCmodels+file, index_col='uuid')
 

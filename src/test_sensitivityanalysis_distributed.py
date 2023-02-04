@@ -4,20 +4,33 @@ import numpy as np
 import time
 import os
 from datetime import date
+import sys
+
+arg_timestep = sys.argv[1]
+arg_nb_of_buildings = sys.argv[2]
+arg_nb_of_scenarios = sys.argv[3]
+arg_folder_name = sys.argv[4]
+arg_file_name = sys.argv[5]
 
 # Loading parameters
 from parameters import *
 # Loading RC models
-from RC_models_15mins import *
+if arg_timestep == '15mins':
+    from RC_models_15mins import *
+elif arg_timestep == 'hourly':
+    from RC_models_hourly import *
 
 # Path definition
 # path_in = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\in\scenarios/'
-folder = 'test_sensitivity_distributed_' + str(date.today()) + '/'
-path_in = '../data/in/'
+folder = arg_folder_name + str(date.today()) + '/'
+if arg_timestep == '15mins':
+    path_in = '../data/in/15mins/'
+if arg_timestep == 'hourly':
+    path_in = '../data/in/houly/'
 path_out = '../data/out/' + folder
 # path_out = r'C:\Users\20190285\surfdrive\05_Data\054_inout\0548_ECP\out/' + folder
 path_src = ''
-version = 'crash_test'
+version = arg_file_name
 
 # Create folder
 if not os.path.exists(path_out):
@@ -66,16 +79,22 @@ for s in range(scenario_nb):
 H = p_gas[s].shape[0]
 buildings = list(dfb[s].keys())
 buildings = [value for value in buildings if value in df_RC.index]
-buildings = buildings[0:5]
+# Number of considered buildings redefined here
+if arg_nb_of_buildings != 'all':
+    buildings = buildings[0:arg_nb_of_buildings]
 
 
 # Sensitivity analysis setups
-sa_setups = ['userbehavior'] # 1 case study only
-scenario_nb = 1  # 1 case study only
-SA_scenarios = [s for s in range(scenario_nb)]  # we loop over scenario_nb scenarios for the sensitivity analysis
-s_occ_and_climate = 5  #6
-s_occ_and_eco = 5  #6
-s_climate_and_eco = 9  #8
+sa_setups = ['userbehavior']  # 1 case study only
+SA_scenarios = [s for s in range(arg_nb_of_scenarios)]  # we loop over scenario_nb scenarios for the sensitivity analysis
+if arg_timestep == '15mins':
+    s_occ_and_climate = 5
+    s_occ_and_eco = 5
+    s_climate_and_eco = 9
+elif arg_timestep == 'hourly':
+    s_occ_and_climate = 4
+    s_occ_and_eco = 4
+    s_climate_and_eco = 4
 
 for sa_setup in sa_setups:
     # Sensitivity analysis scenario loop

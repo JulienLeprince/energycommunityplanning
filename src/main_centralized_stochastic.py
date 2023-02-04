@@ -4,21 +4,34 @@ import numpy as np
 import time
 import os
 from datetime import date
+import sys
+
+arg_timestep = sys.argv[1]
+arg_nb_of_buildings = sys.argv[2]
+arg_nb_of_scenarios = sys.argv[3]
+arg_folder_name = sys.argv[4]
+arg_file_name = sys.argv[5]
 
 # Loading parameters
 from parameters import *
 # Loading RC models
-from RC_models_15mins import *
+if arg_timestep == '15mins':
+    from RC_models_15mins import *
+elif arg_timestep == 'hourly':
+    from RC_models_hourly import *
 
 # Path definition
 # path_in = r'C:/energycommunityplanning/data/in/'
 # path_out = r'C:/energycommunityplanning/data/out/'
 # path_src = r'C:/energycommunityplanning/src/'
-folder = 'poc_centralizedstochastic_' + str(date.today()) + '/'
-path_in = '../data/in/'
+folder = arg_folder_name + str(date.today()) + '/'
+if arg_timestep == '15mins':
+    path_in = '../data/in/15mins/'
+if arg_timestep == 'hourly':
+    path_in = '../data/in/houly/'
 path_out = '../data/out/' + folder
 path_src = ''
-version = 'proofofconcept_5buildings_5scenarios'
+version = arg_file_name
 
 # Create folder
 if not os.path.exists(path_out):
@@ -26,7 +39,10 @@ if not os.path.exists(path_out):
 
 
 # RC building models
-file_RCmodels = path_in+'all_greybox_fits.csv'
+if arg_timestep == '15mins':
+    file_RCmodels = path_in+'all_greybox_fits.csv'
+elif arg_timestep == 'hourly':
+    file_RCmodels = path_in + 'hourly_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
 df_RC = df_RC[df_RC['nCPBES'] < 0.01]
@@ -37,8 +53,9 @@ df_RC.drop(uuids_upsamplingtolarge, inplace=True)
 probabilities = pd.read_csv(path_in+'scenario_probabilities.csv', usecols=[1])
 scenarios = probabilities.shape[0]
 
-# TODO - Reducing size of problem here to 1 (deterministic)
-scenarios = 5
+# Number of considered scenarios redefined here
+if arg_nb_of_scenarios != 'all':
+    scenarios = arg_nb_of_scenarios
 
 # Reading input data
 dfw, dfb = dict(), dict()
@@ -71,8 +88,9 @@ buildings = list(dfb[s].keys())
 buildings = [value for value in buildings if value in df_RC.index]
 
 
-# TODO -Reducing size of problem here
-buildings = buildings[0:5]
+# Number of considered buildings redefined here
+if arg_nb_of_buildings != 'all':
+    buildings = buildings[0:arg_nb_of_buildings]
 
 
 # Calculating heat pump COP
