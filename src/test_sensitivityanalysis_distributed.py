@@ -12,9 +12,6 @@ arg_nb_of_scenarios = int(sys.argv[3])
 arg_folder_name = sys.argv[4]
 arg_file_name = sys.argv[5]
 
-if len(sys.argv) <= 5:
-    raise ValueError("Missing command line arguments.")
-
 # Loading parameters
 from parameters import *
 # Loading RC models
