@@ -488,8 +488,7 @@ for sa_setup in sa_setups:
                             O_inv_blg = df_obj_blg_res[s].loc[bi, 'p_blg_bat'] + df_obj_blg_res[s].loc[bi, 'p_blg_tes'] + df_obj_blg_res[s].loc[bi, 'p_blg_stc'] + df_obj_blg_res[s].loc[bi, 'p_blg_pv'] \
                                         + df_obj_blg_res[s].loc[bi, 'p_blg_bol'] + df_obj_blg_res[s].loc[bi, 'p_blg_hp']
                             O_co2_blg = np.sum(df_blg_t_res[s][bi]['V_blg_gas']*p_co2 + df_blg_t_res[s][bi]['V_blg_gas']*p_gas[s])
-                            O_slk = np.sum(df_blg_t_res[s][bi]['slk_blg_out']*p_slk + df_blg_t_res[s][bi]['slk_blg_in']*p_slk + df_blg_t_res[s][bi]['O_slk_blg']) \
-                                    + (df_blg_res[s].loc[bi, 'slk_C_hp_max'] + df_blg_res[s].loc[bi, 'slk_C_bol_max']) * p_C_slk
+                            O_slk = np.sum(df_blg_t_res[s][bi]['slk_blg_out']*p_slk + df_blg_t_res[s][bi]['slk_blg_in']*p_slk + df_blg_t_res[s][bi]['O_slk_blg'])
                             O_buildings_per_scenario.append(O_inv_blg + O_co2_blg + O_slk)
                     expected_costs = np.sum(O_buildings_per_scenario)*probabilities.iloc[s]
                     O_buildings.append(expected_costs)
