@@ -7,8 +7,8 @@ from datetime import date
 import sys
 
 arg_timestep = sys.argv[1]
-arg_nb_of_buildings = sys.argv[2]
-arg_nb_of_scenarios = sys.argv[3]
+arg_nb_of_buildings = int(sys.argv[2])
+arg_nb_of_scenarios = int(sys.argv[3])
 arg_folder_name = sys.argv[4]
 arg_file_name = sys.argv[5]
 
