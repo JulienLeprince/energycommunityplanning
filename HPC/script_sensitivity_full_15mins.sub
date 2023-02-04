@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo "Starting job"
+module load  python3/3.10.7
+module load gurobi/10.0.0
+pip3 install --user numpy
+pip3 install --user pandas
+pip3 install --user pulp
+
+cd src
+python main_sensitivityanalysis_distributed.py '15mins' 'all' 'all' 'full_sensitivity_distributed_' 'publication_run'

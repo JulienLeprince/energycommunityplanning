@@ -1,0 +1,8 @@
+
+###### Requirements without Version Specifiers ######
+numpy
+pandas
+pulp
+scikit-learn-extra
+pvlib
+##
