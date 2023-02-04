@@ -7,8 +7,8 @@ from datetime import date
 import sys
 
 arg_timestep = sys.argv[1]
-arg_nb_of_buildings = sys.argv[2]
-arg_nb_of_scenarios = sys.argv[3]
+arg_nb_of_buildings = int(sys.argv[2])
+arg_nb_of_scenarios = int(sys.argv[3])
 arg_folder_name = sys.argv[4]
 arg_file_name = sys.argv[5]
 
@@ -27,7 +27,7 @@ folder = arg_timestep + '_' + arg_folder_name + str(date.today()) + '/'
 if arg_timestep == '15mins':
     path_in = '../data/in/15mins/'
 if arg_timestep == 'hourly':
-    path_in = '../data/in/houly/'
+    path_in = '../data/in/hourly/'
 path_out = '../data/out/' + folder
 path_src = ''
 #version = 'proofofconcept_5buildings_5scenarios'
@@ -42,7 +42,7 @@ if not os.path.exists(path_out):
 if arg_timestep == '15mins':
     file_RCmodels = path_in+'all_greybox_fits.csv'
 elif arg_timestep == 'hourly':
-    file_RCmodels = path_in + 'hourly_greybox_fits.csv'
+    file_RCmodels = path_in + 'all_greybox_fits.csv'
 df_RC = pd.read_csv(file_RCmodels, index_col='uuid')
 df_RC.drop('Unnamed: 0', axis=1, inplace=True)
 df_RC = df_RC[df_RC['nCPBES'] < 0.01]
@@ -68,7 +68,7 @@ for s in range(scenarios):
 
     dfb[s] = dict()
     bi = 0
-    for b in range(83):
+    for b in range(72):
         data = pd.read_csv(path_in+'/scenario_'+ str(s) +'.csv', usecols=[5+bi, 6+bi])
         uuid = data.columns[0].split('_')[0]
         dfb[s][uuid] = data
