@@ -8,4 +8,4 @@ pip3 install --user pandas
 pip3 install --user pulp
 
 cd src
-python test_sensitivityanalysis_distributed.py '15mins' 5 5 'test_sensitivity_distributed_' 'crash_test'
+python3 test_sensitivityanalysis_distributed.py '15mins' 5 5 'test_sensitivity_distributed_' 'crash_test'

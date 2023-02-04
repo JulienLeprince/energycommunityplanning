@@ -8,4 +8,4 @@ pip3 install --user pandas
 pip3 install --user pulp
 
 cd src
-python main_sensitivityanalysis_distributed.py 'hourly' 'all' 'all' 'full_sensitivity_distributed_' 'publication_run'
+python3 main_sensitivityanalysis_distributed.py 'hourly' 'all' 'all' 'full_sensitivity_distributed_' 'publication_run'

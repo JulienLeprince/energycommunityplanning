@@ -8,4 +8,4 @@ pip3 install --user pandas
 pip3 install --user pulp
 
 cd src
-python main_centralized_stochastic.py 'hourly' 5 5 'poc_centralizedstochastic_' 'publication_run'
+python3 main_centralized_stochastic.py 'hourly' 5 5 'poc_centralizedstochastic_' 'publication_run'

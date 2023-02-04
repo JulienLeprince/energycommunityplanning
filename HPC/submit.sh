@@ -7,4 +7,5 @@ declare -a jobs=("stochastic_distributed_full_hourly" "stochastic_distributed_po
 
 for job in "${jobs[@]}"
   do
-    bsub -J $job_name -q compute -o ${job_name}.out -e ${job_name}.err -n 2 -R "span[hosts=1]" -R "rusage[mem=120GB]" -M 121GB -u ${email_address} -W 72:00 -R "select[model == XeonE5_2650v4]" -B -N HPC/script_${job}.sub
+    bsub -J $job -q compute -o ${job}.out -e ${job}.err -n 2 -R "span[hosts=1]" -R "rusage[mem=120GB]" -M 121GB -u ${email_address} -W 72:00 -R "select[model == XeonE5_2650v4]" -B -N HPC/script_${job}.sub
+done
